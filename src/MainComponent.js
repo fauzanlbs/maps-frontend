@@ -493,7 +493,7 @@ class MainComponent extends Component {
     if(london_postcodes){
       const json = london_postcodes;
       return <GeoJSON  key={hash(json)}
-          data={this.state.geojsonApi}
+          data={json}
           style={this.geoJSONStyle}
           onEachFeature={this.onEachFeature}
           onClick={(e)=> {console.log('tes ini klik', e)}}
