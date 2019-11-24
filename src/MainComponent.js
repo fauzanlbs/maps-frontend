@@ -24,6 +24,7 @@ import './App.css';
 import london_postcodes from './london.json'
 
 
+
 const PrintControl = withLeaflet(PrintControlDefault);
 
 const { BaseLayer, Overlay } = LayersControl
@@ -36,11 +37,6 @@ const messageIcon = L.icon({
   iconUrl: messageLocationURL,
   iconSize: [50, 82]
 });
-
-const multiPolygon = [
-  [[51.505, -0.12], [51.505, -0.13], [51.53, -0.13]],
-  [[51.505, -0.05], [51.51, -0.07], [51.53, -0.07]],
-]
 
 const multiPolygon2 = [
   [[51.505, -0.18], [51.505, -0.17], [51.52, -0.17]],
@@ -61,6 +57,11 @@ class MainComponent extends Component {
       name: '',
       message: ''
     },
+    formProperties: {
+      no_peta_denah: '',
+      luas_tanah: '',
+      warna_wilayah: ''
+    },
     sideBarVisible: false,
     sendingMessage: false,
     sentMessage: false,
@@ -69,7 +70,8 @@ class MainComponent extends Component {
     activeTab: '1',
     streetView: null,
     geojsonApi: [],
-    user:{}
+    user:{},
+    newLokasi:{}
   }
 
 
@@ -183,6 +185,7 @@ class MainComponent extends Component {
 
     this.toggle = this.toggle.bind(this);
     this.toggleTab = this.toggleTab.bind(this);
+    this.submitLokasi = this.submitLokasi.bind(this);
   }
   
  
@@ -230,25 +233,61 @@ class MainComponent extends Component {
   }
 
   
-  geoJSONStyle() {
+  geoJSONStyle(feature: Object) {
+    
     return {
-      color: '#1f2021',
+      color: feature.properties.warna_wilayah,
       weight: 1,
       fillOpacity: 0.5,
-      fillColor: '#fff2af',
+      fillColor: feature.properties.warna_wilayah,
     }
   }
 
   onEachFeature(feature: Object, layer: Object) {
-    console.log('ini objectnya',feature)
-    const popupContent = ` <Popup><p>Customizable Popups <br />with feature information.</p><pre>Borough: 
-    <br />${feature.properties.name}
-    <br />${feature.properties.alamat}
-    </pre></Popup>`
+    console.log('ini featurnya per item',feature)
+     console.log('ini layernya per item',layer)
+    const popupContent = ` <Popup>
+    
+    No Peta Denah: ${feature.properties.no_peta_denah}
+    <br />
+    Luas Tanah: ${feature.properties.luas_tanah}
+    <br />
+    Warna Wilayah: ${feature.properties.warna_wilayah}
+    <br />
+    
+    <Button style={{margin:10}}>Detail</Button>
+   
+    
+    </Popup>`
     layer.bindPopup(popupContent)
   }
 
   toggle() {
+    this.setState(prevState => ({
+      modal: !prevState.modal
+    }));
+  }
+
+  async submitLokasi(){
+
+    console.log('ini submit', this.state.formProperties, this.state.newLokasi)
+
+    let joinObject = {...this.state.newLokasi, properties: this.state.formProperties }
+
+    console.log('ini joinnya', joinObject);
+
+    let api = new Api();
+    await api.create();
+    let client = api.getClient();
+    client.post('/lokasi', joinObject).then((res)=>{
+
+      console.log('ini res postnya',res)
+    }).catch((err)=>{
+      console.log('ini error', err)
+    });
+
+
+
     this.setState(prevState => ({
       modal: !prevState.modal
     }));
@@ -307,6 +346,10 @@ class MainComponent extends Component {
 
   _onCreate = (data) => {
     
+    this.setState(prevState => ({
+      modal: !prevState.modal
+    }));
+
     console.log('state', this.state)
     // data.sourceTarget._layers.eachLayer(a => {
     //   console.log('ini isinya loh', a.toGeoJSON())
@@ -319,10 +362,14 @@ class MainComponent extends Component {
     //data.layer.options.push(test);
     //console.log('oncreate', data)
     
-    let coba = data.layer.toGeoJSON();
+    let newLokasiJson = data.layer.toGeoJSON();
+
+    this.setState({
+      newLokasi: newLokasiJson
+    })
     
     // coba["properties"]["coba"] = "lagi";
-    console.log(coba,'coba ini');
+    console.log(this.state.newLokasi,'coba ini');
   }
 
   _onEdit = (data) => {
@@ -472,18 +519,6 @@ class MainComponent extends Component {
         longitude: this.state.location.lng,
       };
 
-      // send
-
-      // sendMessage(message)
-      //   .then((result) => {
-      //     setTimeout(() => {
-      //       this.setState({
-      //         sendingMessage: false,
-      //         sentMessage: true
-      //       });
-      //     }, 4000);
-      //   });
-
 
     }
   }
@@ -597,6 +632,8 @@ class MainComponent extends Component {
             type="email"
             name="email"
             id="exampleEmail"
+            value={this.state.formProperties.no_peta_denah}
+            onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,no_peta_denah:e.target.value} })}
             
           />
         </FormGroup>
@@ -639,6 +676,8 @@ class MainComponent extends Component {
             name="color"
             id="exampleColor"
             placeholder="color placeholder"
+            value={this.state.formProperties.warna_wilayah}
+            onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,warna_wilayah:e.target.value} })}
           />
         </FormGroup>
 
@@ -648,7 +687,8 @@ class MainComponent extends Component {
             type="number"
             name="number"
             id="exampleNumber"
-            
+            value={this.state.formProperties.luas_tanah}
+            onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,luas_tanah:e.target.value} })}
           />
         </FormGroup>
 
@@ -884,7 +924,7 @@ class MainComponent extends Component {
 
           </ModalBody>
           <ModalFooter>
-            <Button color="primary" onClick={this.toggle}>Simpan</Button>{' '}
+            <Button color="primary" onClick={this.submitLokasi}>Simpan</Button>{' '}
             <Button color="secondary" onClick={this.toggle}>Batal</Button>
           </ModalFooter>
         </Modal>
