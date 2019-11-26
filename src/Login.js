@@ -108,7 +108,10 @@ async submitForm(){
 
 
 componentDidMount(){
-  localStorage.clear()
+  let userStorage = localStorage.getItem('user');
+  if(userStorage){
+    this.props.history.push('/maps');
+  }
 }
 
  render() {

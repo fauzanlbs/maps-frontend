@@ -8,7 +8,7 @@ const MessageCardForm = (props) => {
     <CardTitle onClick={props.cancelMessage}>X</CardTitle>
 
           <div style={{display: 'flex', justifyContent:'center', alignItems:'center'}}>
-          <img src='https://cdn6.f-cdn.com/contestentries/1376995/30494909/5b566bc71d308_thumbCard.jpg'     
+          <img src={require('./profile.png')}     
           style={{ width: 250, height: 250, borderRadius: 50,justifyContent:'center',
     alignItem:'center'}}
           />

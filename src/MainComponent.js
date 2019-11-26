@@ -10,7 +10,7 @@ import { EditControl } from "react-leaflet-draw"
 import PrintControlDefault from 'react-leaflet-easyprint';
 
 import hash from 'object-hash';
-
+import { BaseMapHansonland } from './BaseMapHansonland';
 
 import userLocationURL from './user_location.svg';
 import messageLocationURL from './message_location.svg';
@@ -21,27 +21,23 @@ import { getLocation } from './API';
 import Api from './API';
 
 import './App.css';
+import './MainComponent.css';
 import london_postcodes from './london.json'
 
+import { popupContent, popupHead, popupText, okText } from "./PopUpStyle";
 
+import GoogleLayer from './GoogleLayer'
+const key = 'AIzaSyDV-Qiaydvq7kZ4KpCFHYHkJ977AkbIA6s';
+const terrain = 'TERRAIN';
+const road = 'ROADMAP';
+const satellite = 'SATELLITE';
+const hydrid = 'HYBRID';
 
 const PrintControl = withLeaflet(PrintControlDefault);
 
 const { BaseLayer, Overlay } = LayersControl
-const myIcon = L.icon({
-  iconUrl: userLocationURL,
-  iconSize: [50, 82]
-});
 
-const messageIcon = L.icon({
-  iconUrl: messageLocationURL,
-  iconSize: [50, 82]
-});
 
-const multiPolygon2 = [
-  [[51.505, -0.18], [51.505, -0.17], [51.52, -0.17]],
-  [[51.505, -0.11], [51.505, -0.29], [51.50, -0.07]],
-]
 
 class MainComponent extends Component {
   constructor(props) {
@@ -52,7 +48,7 @@ class MainComponent extends Component {
       lng: 106.72507524490355,
     },
     haveUsersLocation: false,
-    zoom: 18,
+    zoom: 21,
     userMessage: {
       name: '',
       message: ''
@@ -60,7 +56,13 @@ class MainComponent extends Component {
     formProperties: {
       no_peta_denah: '',
       luas_tanah: '',
-      warna_wilayah: ''
+      warna_wilayah: '',
+      nama_penjual:'',
+      no_akta_jual_beli:'',
+      tgl_akta_jual_beli:'',
+      luas_awal:'',
+      luas_akhir:'',
+      harga_jual_beli:''
     },
     sideBarVisible: false,
     sendingMessage: false,
@@ -71,127 +73,23 @@ class MainComponent extends Component {
     streetView: null,
     geojsonApi: [],
     user:{},
-    newLokasi:{}
+    newLokasi:{},
+    getApi: false,
+    showPopUp: false
   }
 
-
-  this.baseMaps = [
-
-      {
-        name: 'Google Satellite',
-        url: 'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
-        attribution: '&copy; Google',
-        type: 'tile',
-        checked: true
-      },
-      {
-        name: 'OpenStreet Map',
-        url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-        attribution: '&amp;copy <a href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors',
-        type: 'tile'
-      },
-      {
-        name: 'ArcGIS World Imagery Firefly',
-        url: 'http://fly.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Firefly/MapServer/tile/{z}/{y}/{x}',
-        attribution: 'Esri, DigitalGlobe, GeoEye, Earthstar Geographics, CNES/Airbus DS, USDA, USGS, AeroGRID, IGN, and the GIS User Community',
-        type: 'tile'
-      },
-      {
-        name: 'ArcGIS World Street Map',
-        url: 'http://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
-        attribution: 'Esri',
-        type: 'tile'
-      },
-      {
-        name: 'ArcGIS World Topo Map',
-        url: 'http://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
-        attribution: 'Esri',
-        type: 'tile'
-      },
-      {
-        name: 'ArcGIS World Ocean Basemap',
-        url: 'http://server.arcgisonline.com/arcgis/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}',
-        attribution: 'Esri',
-        type: 'tile'
-      },
-     
-      {
-        name: 'ArcGIS World Dark Gray Map',
-        url: 'http://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
-        attribution: 'Esri, DeLorme, HERE',
-        type: 'tile'
-      },
-      {
-        name: 'ArcGIS World Dark Gray Map with Label',
-        url: 'http://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
-        attribution: '',
-        type: 'tile'
-      },
-      {
-        name: 'ArcGIS World Light Gray Map',
-        url: 'http://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
-        attribution: 'Esri, NAVTEQ, DeLorme',
-        type: 'tile'
-      },
-      {
-        name: 'ArcGIS World Light Gray Map with Label',
-        url: 'http://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
-        attribution: '',
-        type: 'tile'
-      },
-      {
-        name: 'ArcGIS World Imagery',
-        url: 'http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-        attribution: 'Esri, DigitalGlobe, GeoEye, i-cubed, USDA, USGS, AEX, Getmapping, Aerogrid, IGN, IGP, swisstopo, and the GIS User Community',
-        type: 'tile'
-      },
-      {
-        name: 'ArcGIS World Imagery with Label',
-        url: 'http://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
-        attribution: '',
-        type: 'tile'
-      },
-      {
-        name: 'ArcGIS World Transportation Map',
-        url: 'http://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}',
-        attribution: '',
-        type: 'tile'
-      },
-      {
-        name: 'ArcGIS World Shaded Relief Map',
-        url: 'http://server.arcgisonline.com/ArcGIS/rest/services/World_Shaded_Relief/MapServer/tile/{z}/{y}/{x}',
-        attribution: 'Esri, NAVTEQ, DeLorme',
-        type: 'tile'
-      },
-      {
-        name: 'ArcGIS World Shaded Relief Map with Label',
-        url: 'http://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places_Alternate/MapServer/tile/{z}/{y}/{x}',
-        attribution: '',
-        type: 'tile'
-      },
-     
-      {
-        name: 'ArcGIS World Imagery Clarity',
-        url: 'http://clarity.maptiles.arcgis.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-        attribution: 'Esri, DigitalGlobe, GeoEye, Earthstar Geographics, CNES/Airbus DS, USDA, USGS, AeroGRID, IGN, and the GIS User Community',
-        type: 'tile'
-      },
-      
-      
-    ];
-
-
-
-
+    this.openPopUp = this.openPopUp.bind(this)
+    this.baseMaps = BaseMapHansonland;
     this.toggle = this.toggle.bind(this);
     this.toggleTab = this.toggleTab.bind(this);
     this.submitLokasi = this.submitLokasi.bind(this);
+    // this.customPopUp = this.customPopUp.bind(this);
   }
   
  
  renderBaseLayerControl() {
     return (
-      <LayersControl position="bottomleft">
+      <LayersControl position="bottomright">
         { this.baseMaps.map(({ name, url, attribution, type, layer, format, checked = false }) => {
           return type === 'wms' ? (
             <LayersControl.BaseLayer key={name} name={name} checked={checked} >
@@ -232,6 +130,323 @@ class MainComponent extends Component {
     );
   }
 
+modalInfo(){
+  return(
+       <Modal isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
+                          <ModalHeader toggle={this.toggle}>Informasi Tanah</ModalHeader>
+                          <ModalBody>
+                            
+                          <Nav tabs>
+                          <NavItem>
+                            <NavLink
+                              className={classnames({ active: this.state.activeTab === '1' })}
+                              onClick={() => { this.toggleTab('1'); }}
+                            >
+                              Detail 1
+                            </NavLink>
+                          </NavItem>
+                          <NavItem>
+                            <NavLink
+                              className={classnames({ active: this.state.activeTab === '2' })}
+                              onClick={() => { this.toggleTab('2'); }}
+                            >
+                              Detail 2
+                            </NavLink>
+                          </NavItem>
+                           <NavItem>
+                            <NavLink
+                              className={classnames({ active: this.state.activeTab === '3' })}
+                              onClick={() => { this.toggleTab('3'); }}
+                            >
+                              Detail 3
+                            </NavLink>
+                          </NavItem>
+                        </Nav>
+                        <TabContent activeTab={this.state.activeTab}>
+                          <TabPane tabId="1">
+                            
+
+                            <Form>
+                       
+                        <FormGroup>
+                          <Label for="exampleEmail">Nomor Peta/Denah</Label>
+                          <Input
+                            type="email"
+                            name="email"
+                            id="exampleEmail"
+                            value={this.state.formProperties.no_peta_denah}
+                            onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,no_peta_denah:e.target.value} })}
+                            
+                          />
+                        </FormGroup>
+
+                         <FormGroup>
+                          <Label for="exampleEmail">Nomor Akta Jual beli</Label>
+                          <Input
+                            type="email"
+                            name="email"
+                            id="exampleEmail"
+                            value={this.state.formProperties.no_akta_jual_beli}
+                            onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,no_akta_jual_beli:e.target.value} })}
+                          />
+                        </FormGroup>
+                        
+                        
+                          <FormGroup>
+                          <Label for="exampleDate">Tanggal Akta Jual Beli</Label>
+                          <Input
+                            type="date"
+                            name="date"
+                            id="exampleDate"
+                            placeholder="date placeholder"
+                            value={this.state.formProperties.tgl_akta_jual_beli}
+                            onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,tgl_akta_jual_beli:e.target.value} })}
+                          />
+                          </FormGroup>
+
+                          <FormGroup>
+                          <Label for="exampleEmail">Nama Penjual</Label>
+                          <Input
+                            type="email"
+                            name="email"
+                            id="exampleEmail"
+                            value={this.state.formProperties.nama_penjual}
+                            onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,nama_penjual:e.target.value} })}
+                          />
+                        </FormGroup>
+
+                          <FormGroup>
+                          <Label for="exampleColor">Warna Wilayah</Label>
+                          <Input
+                            type="color"
+                            name="color"
+                            id="exampleColor"
+                            placeholder="color placeholder"
+                            value={this.state.formProperties.warna_wilayah}
+                            onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,warna_wilayah:e.target.value} })}
+                          />
+                        </FormGroup>
+
+                         <FormGroup>
+                          <Label for="exampleNumber">Luas Tanah</Label>
+                          <Input
+                            type="number"
+                            name="number"
+                            id="exampleNumber"
+                            value={this.state.formProperties.luas_tanah}
+                            onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,luas_tanah:e.target.value} })}
+                          />
+                        </FormGroup>
+
+
+                       <FormGroup>
+                                <Label for="exampleNumber">Luas Awal</Label>
+                                <Input
+                                  type="number"
+                                  name="number"
+                                  id="exampleNumber"
+                                  value={this.state.formProperties.luas_awal}
+                            onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,luas_awal:e.target.value} })}
+                                />
+                              </FormGroup>
+
+
+                       <FormGroup>
+                                <Label for="exampleNumber">Luas Akhir Pembelian</Label>
+                                <Input
+                                  type="number"
+                                  name="number"
+                                  id="exampleNumber"
+                                  value={this.state.formProperties.luas_akhir}
+                            onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,luas_akhir:e.target.value} })}
+                                />
+                      </FormGroup>
+
+
+
+
+
+                      </Form>
+
+
+                          </TabPane>
+                          <TabPane tabId="2">
+                             
+                              <FormGroup>
+                          <Label for="exampleEmail">Rensil Nomor</Label>
+                          <Input
+                            type="email"
+                            name="email"
+                            id="exampleEmail"
+                            
+                          />
+                        </FormGroup>
+
+                         <FormGroup>
+                          <Label for="exampleEmail">Girik C</Label>
+                          <Input
+                            type="email"
+                            name="email"
+                            id="exampleEmail"
+                            
+                          />
+                        </FormGroup>
+
+                         <FormGroup>
+                          <Label for="exampleEmail">SPPT PBB</Label>
+                          <Input
+                            type="email"
+                            name="email"
+                            id="exampleEmail"
+                            
+                          />
+                        </FormGroup>
+
+                         <FormGroup>
+                          <Label for="exampleEmail">Pejabat Pembuat Akta Tanah</Label>
+                          <Input
+                            type="email"
+                            name="email"
+                            id="exampleEmail"
+                            
+                          />
+                        </FormGroup>
+
+                         <FormGroup>
+                          <Label for="exampleEmail">Pihak Pertama</Label>
+                          <Input
+                            type="email"
+                            name="email"
+                            id="exampleEmail"
+                            
+                          />
+                        </FormGroup>
+
+                         <FormGroup>
+                          <Label for="exampleEmail">Pihak Kedua</Label>
+                          <Input
+                            type="email"
+                            name="email"
+                            id="exampleEmail"
+                            
+                          />
+                        </FormGroup>
+
+                         <FormGroup>
+                          <Label for="exampleEmail">Saksi 1</Label>
+                          <Input
+                            type="email"
+                            name="email"
+                            id="exampleEmail"
+                            
+                          />
+                        </FormGroup>
+
+                         <FormGroup>
+                          <Label for="exampleEmail">Saksi 2</Label>
+                          <Input
+                            type="email"
+                            name="email"
+                            id="exampleEmail"
+                            
+                          />
+                        </FormGroup>
+
+                         <FormGroup>
+                          <Label for="exampleEmail">Team Pembebasan</Label>
+                          <Input
+                            type="email"
+                            name="email"
+                            id="exampleEmail"
+                            
+                          />
+                        </FormGroup>
+
+
+                        <FormGroup>
+                          <Label for="exampleNumber">Tahun pembebasan</Label>
+                          <Input
+                            type="number"
+                            name="number"
+                            id="exampleNumber"
+                            
+                          />
+                        </FormGroup>
+
+                          </TabPane>
+                          <TabPane tabId="3">
+                              <FormGroup>
+                          <Label for="exampleText">Alamat</Label>
+                          <Input type="textarea" name="text" id="exampleText" />
+                        </FormGroup>
+
+
+                           <FormGroup>
+                          <Label for="exampleEmail">Jalan</Label>
+                          <Input
+                            type="email"
+                            name="email"
+                            id="exampleEmail"
+                            
+                          />
+                        </FormGroup>
+
+                         <FormGroup>
+                          <Label for="exampleEmail">Kabupaten / kota</Label>
+                          <Input
+                            type="email"
+                            name="email"
+                            id="exampleEmail"
+                            
+                          />
+                        </FormGroup>
+
+                         <FormGroup>
+                          <Label for="exampleEmail">Desa / Kelurahan</Label>
+                          <Input
+                            type="email"
+                            name="email"
+                            id="exampleEmail"
+                            
+                          />
+                        </FormGroup>
+
+                         <FormGroup>
+                          <Label for="exampleEmail">Kecamatan</Label>
+                          <Input
+                            type="email"
+                            name="email"
+                            id="exampleEmail"
+                            
+                          />
+                        </FormGroup>
+
+                         <FormGroup>
+                          <Label for="exampleEmail">Provinsi</Label>
+                          <Input
+                            type="email"
+                            name="email"
+                            id="exampleEmail"
+                            
+                          />
+                        </FormGroup>
+
+
+                          </TabPane>
+                        </TabContent>
+
+
+
+                          </ModalBody>
+                          <ModalFooter>
+                            <Button color="primary" onClick={this.submitLokasi}>Simpan</Button>{' '}
+
+                            <Button color="secondary" onClick={this.toggle}>Batal</Button>
+                          </ModalFooter>
+                        </Modal>
+  )
+}
+
   
   geoJSONStyle(feature: Object) {
     
@@ -246,26 +461,71 @@ class MainComponent extends Component {
   onEachFeature(feature: Object, layer: Object) {
     console.log('ini featurnya per item',feature)
      console.log('ini layernya per item',layer)
+
+
     const popupContent = ` <Popup>
     
-    No Peta Denah: ${feature.properties.no_peta_denah}
+    No Peta Denah: ${feature.properties.no_peta_denah?feature.properties.no_peta_denah:'-'}
     <br />
-    Luas Tanah: ${feature.properties.luas_tanah}
+    Nama Penjual: ${feature.properties.nama_penjual?feature.properties.nama_penjual:'-'}
     <br />
-    Warna Wilayah: ${feature.properties.warna_wilayah}
+    Luas Tanah: ${feature.properties.luas_tanah?feature.properties.luas_tanah:'-'}
+    <br />
+    No Akta Jual Beli: ${feature.properties.no_akta_jual_beli?feature.properties.no_akta_jual_beli:'-'}
+    <br />
+    Tanggal Akta Jual Beli: ${feature.properties.tgl_akta_jual_beli?feature.properties.tgl_akta_jual_beli:'-'}
+    <br />
+    Luas Tanah: ${feature.properties.luas_tanah?feature.properties.luas_tanah:'-'}
+    <br />
+    Luas Awal: ${feature.properties.luas_awal?feature.properties.luas_awal:'-'}
+    <br />
+    Luas Akhir: ${feature.properties.luas_akhir?feature.properties.luas_akhir:'-'}
+    <br />
+    Tanggal Input: ${feature.properties.date?feature.properties.date:'-'}
+    <br />  
+    <br />
     <br />
     
-    <Button style={{margin:10}}>Detail</Button>
+   
    
     
     </Popup>`
-    layer.bindPopup(popupContent)
+   
+    layer.on({
+      mouseover: function(event) {
+        var popup = L.popup()
+            .setLatLng(event.latlng)
+            .setContent(popupContent, {maxWidth: 700})
+            .openOn(layer._map);
+            layer.bindPopup(popup)
+          }
+
+    });
+
+
+    
+    
+  }
+  
+
+
+  openPopUp(e){
+    console.log('ini klikz', e.layer.feature);
+    this.setState({
+      modal: true
+    })
+   
   }
 
   toggle() {
+
     this.setState(prevState => ({
       modal: !prevState.modal
     }));
+  }
+
+  refreshPage(){ 
+    window.parent.location = window.parent.location.href; 
   }
 
   async submitLokasi(){
@@ -281,7 +541,11 @@ class MainComponent extends Component {
     let client = api.getClient();
     client.post('/lokasi', joinObject).then((res)=>{
 
-      console.log('ini res postnya',res)
+      console.log('ini res postnya',res.data)
+      this.props.history.push('/');
+      this.setState({
+        geojsonApi: {...this.state.geojsonApi, ...joinObject}
+      })
     }).catch((err)=>{
       console.log('ini error', err)
     });
@@ -291,6 +555,29 @@ class MainComponent extends Component {
     this.setState(prevState => ({
       modal: !prevState.modal
     }));
+  }
+
+
+  async deleteLokasi(id){
+
+    console.log('hit delete func')
+
+    let api = new Api();
+    await api.create();
+    let client = api.getClient();
+    client.delete('/lokasi', id).then((res)=>{
+
+      console.log('ini res postnya',res.data)
+      this.props.history.push('/');
+     
+    }).catch((err)=>{
+      console.log('ini error', err)
+    });
+
+  }
+
+  ComponentDidUpdate(){
+    this.getDatafromApi()
   }
 
   toggleTab(tab) {
@@ -311,11 +598,10 @@ class MainComponent extends Component {
     }))
   }
 
-  async componentDidMount() {
+  getDatafromApi(){
 
-    //get api all
 
-    let token = localStorage.getItem('token');
+  let token = localStorage.getItem('token');
     let userStorage = localStorage.getItem('user');
     let convertUser = JSON.parse(userStorage);
     
@@ -325,13 +611,22 @@ class MainComponent extends Component {
     if(token){
       console.log('masuk setelah validasi token')
         let api = new Api()
-        await api.create();
+         api.create();
         let client = api.getClient()
         client.get('/lokasi').then((res) => {
           this.setState({
             geojsonApi: res.data.data.lokasis
           })
-          console.log('ini geojson didmount', this.state.geojsonApi)
+
+          let features = this.state.geojsonApi
+          let joinObjectnya = features.map(obj=>({...obj, type:'Feature'}))
+
+          this.setState({
+            geojsonApi:joinObjectnya,
+            getApi: true
+          })
+
+        console.log('test', joinObjectnya)
         }).catch((err)=>{
           console.log('ini errornya', err)
         })
@@ -340,9 +635,13 @@ class MainComponent extends Component {
       this.props.history.push('/');
     }
 
-    
 
   }
+
+   componentDidMount() {
+          //get data
+         this.getDatafromApi()
+   }
 
   _onCreate = (data) => {
     
@@ -351,16 +650,6 @@ class MainComponent extends Component {
     }));
 
     console.log('state', this.state)
-    // data.sourceTarget._layers.eachLayer(a => {
-    //   console.log('ini isinya loh', a.toGeoJSON())
-    // });
-    // data.sourceTarget
-    let test = {
-    "cat" : "meong",    
-    "size" : "XL"   
-      };
-    //data.layer.options.push(test);
-    //console.log('oncreate', data)
     
     let newLokasiJson = data.layer.toGeoJSON();
 
@@ -404,12 +693,9 @@ class MainComponent extends Component {
 
     if(!this._editableFG){
       return;
-    }
-
-    
+    } 
 
   }
-
 
   _editableFG = null
 
@@ -421,16 +707,9 @@ class MainComponent extends Component {
     // console.log('ini leafletgeojson: ',leafletGeoJSON);
     // console.log('ini refnya ', reactFGref)
     if(reactFGref){
-      let leafletFG = reactFGref.leafletElement;
-
-      
+      let leafletFG = reactFGref.leafletElement;      
     }
-
-      
-    
     // console.log('ini convertnya', leafletFG);
-
-   
 
     // // store the ref for future access to content
 
@@ -442,8 +721,7 @@ class MainComponent extends Component {
          const geojsonData = this._editableFG.leafletElement.toGeoJSON();
          console.log('ini geojsondatanya', geojsonData);
      }
-    
-
+  
   }
 
   _onChange = () => {
@@ -525,10 +803,12 @@ class MainComponent extends Component {
 
 
    dataGeo = () => {
-    if(london_postcodes){
+    if(this.state.geojsonApi){
+      console.log('ini isi londonjson', london_postcodes)
       const json = london_postcodes;
+      const geojsonApinya = this.state.geojsonApi;
       return <GeoJSON  key={hash(json)}
-          data={json}
+          data={geojsonApinya}  
           style={this.geoJSONStyle}
           onEachFeature={this.onEachFeature}
           onClick={(e)=> {console.log('tes ini klik', e)}}
@@ -544,16 +824,23 @@ class MainComponent extends Component {
     return (
       <div className="map">
         
-        <Map
+          <Map
           className="map"
           worldCopyJump={true}
           center={position}
           zoom={this.state.zoom}
-         
           >
+         
+          {this.state.getApi?
+          (<GeoJSON 
+          data={this.state.geojsonApi}
+          style={this.geoJSONStyle}
+          onEachFeature={this.onEachFeature}
+          onClick={(e)=> {this.openPopUp(e)}}>
+          
 
-        {this.dataGeo()}
-
+          </GeoJSON>
+          ):null}
 
 
           <PrintControl ref={(ref) => { this.printControl = ref; }} position="topleft" sizeModes={['Current', 'A4Portrait', 'A4Landscape']} hideControlContainer={false} />
@@ -562,8 +849,26 @@ class MainComponent extends Component {
           { this.renderBaseLayerControl() }
 
 
-
-          
+          <LayersControl position='bottomright'>
+          <BaseLayer  name='OpenStreetMap.Mapnik'>
+            <TileLayer  url="http://{s}.tile.osm.org/{z}/{x}/{y}.png"/>
+          </BaseLayer>
+         <BaseLayer checked name='Google Maps Roads'>
+            <GoogleLayer googlekey={key}  maptype={road} />
+          </BaseLayer>
+         <BaseLayer  name='Google Maps Terrain'>
+            <GoogleLayer googlekey={key}  maptype={terrain} />
+          </BaseLayer>
+           <BaseLayer  name='Google Maps Satellite'>
+            <GoogleLayer googlekey={key}  maptype={satellite} />
+          </BaseLayer>
+            <BaseLayer  name='Google Maps Hydrid'>
+            <GoogleLayer googlekey={key}  maptype={hydrid}  libraries={['geometry', 'places']} />
+          </BaseLayer>  
+          <BaseLayer  name='Google Maps with Libraries'>
+            <GoogleLayer googlekey={key}  maptype={hydrid}  libraries={['geometry', 'places']} />
+          </BaseLayer>        
+        </LayersControl>
  
 
 
@@ -573,9 +878,11 @@ class MainComponent extends Component {
           onEdited={(e) => this._onEdit(e)}
           onDeleted={(e) => this._onDelete(e)}
           onEditVertex={(e) => this._onEditVertex(e)}
-          position='bottomleft'
+          position='topleft'
           draw={{
               rectangle: false,
+              circle: false,
+              circlemarker: false,
               polyline: false,
               marker: false,
               polygon: {
@@ -585,376 +892,45 @@ class MainComponent extends Component {
                 }
               }
             }}
+            edit={{ edit: false, remove: false }}
+          
           />
           
 
+         {this.modalInfo()}
+                       
 
-         
-        <Modal isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
-          <ModalHeader toggle={this.toggle}>Informasi Tanah</ModalHeader>
-          <ModalBody>
-            
-          <Nav tabs>
-          <NavItem>
-            <NavLink
-              className={classnames({ active: this.state.activeTab === '1' })}
-              onClick={() => { this.toggleTab('1'); }}
-            >
-              Detail 1
-            </NavLink>
-          </NavItem>
-          <NavItem>
-            <NavLink
-              className={classnames({ active: this.state.activeTab === '2' })}
-              onClick={() => { this.toggleTab('2'); }}
-            >
-              Detail 2
-            </NavLink>
-          </NavItem>
-           <NavItem>
-            <NavLink
-              className={classnames({ active: this.state.activeTab === '3' })}
-              onClick={() => { this.toggleTab('3'); }}
-            >
-              Detail 3
-            </NavLink>
-          </NavItem>
-        </Nav>
-        <TabContent activeTab={this.state.activeTab}>
-          <TabPane tabId="1">
-            
-
-            <Form>
-       
-        <FormGroup>
-          <Label for="exampleEmail">Nomor Peta/Denah</Label>
-          <Input
-            type="email"
-            name="email"
-            id="exampleEmail"
-            value={this.state.formProperties.no_peta_denah}
-            onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,no_peta_denah:e.target.value} })}
-            
-          />
-        </FormGroup>
-
-         <FormGroup>
-          <Label for="exampleEmail">Nomor Akta Jual beli</Label>
-          <Input
-            type="email"
-            name="email"
-            id="exampleEmail"
-            
-          />
-        </FormGroup>
-        
-        
-          <FormGroup>
-          <Label for="exampleDate">Tanggal Akta Jual Beli</Label>
-          <Input
-            type="date"
-            name="date"
-            id="exampleDate"
-            placeholder="date placeholder"
-          />
-          </FormGroup>
-
-          <FormGroup>
-          <Label for="exampleEmail">Nama Penjual</Label>
-          <Input
-            type="email"
-            name="email"
-            id="exampleEmail"
-            
-          />
-        </FormGroup>
-
-          <FormGroup>
-          <Label for="exampleColor">Warna Wilayah</Label>
-          <Input
-            type="color"
-            name="color"
-            id="exampleColor"
-            placeholder="color placeholder"
-            value={this.state.formProperties.warna_wilayah}
-            onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,warna_wilayah:e.target.value} })}
-          />
-        </FormGroup>
-
-         <FormGroup>
-          <Label for="exampleNumber">Luas Tanah</Label>
-          <Input
-            type="number"
-            name="number"
-            id="exampleNumber"
-            value={this.state.formProperties.luas_tanah}
-            onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,luas_tanah:e.target.value} })}
-          />
-        </FormGroup>
-
-
-       <FormGroup>
-                <Label for="exampleNumber">Luas Awal</Label>
-                <Input
-                  type="number"
-                  name="number"
-                  id="exampleNumber"
-                  
-                />
-              </FormGroup>
-
-
-       <FormGroup>
-                <Label for="exampleNumber">Luas Akhir Pembelian</Label>
-                <Input
-                  type="number"
-                  name="number"
-                  id="exampleNumber"
-                  
-                />
-      </FormGroup>
-
-
-         <FormGroup>
-          <Label for="exampleText">Status / Deskripsi</Label>
-          <Input type="textarea" name="text" id="exampleText" />
-        </FormGroup>
-
-        <FormGroup>
-          <Label for="exampleNumber">Harga Jual Beli</Label>
-          <Input
-            type="number"
-            name="number"
-            id="exampleNumber"
-            
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <Label for="exampleNumber">Biaya lain2</Label>
-          <Input
-            type="number"
-            name="number"
-            id="exampleNumber"
-            
-          />
-        </FormGroup>
-
-
-        <FormGroup>
-          <Label for="exampleFile">Foto</Label>
-          <Input type="file" name="file" id="exampleFile" />
-          <FormText color="muted">
-           
-          </FormText>
-        </FormGroup>
-
-
-
-      </Form>
-
-
-          </TabPane>
-          <TabPane tabId="2">
-             
-              <FormGroup>
-          <Label for="exampleEmail">Rensil Nomor</Label>
-          <Input
-            type="email"
-            name="email"
-            id="exampleEmail"
-            
-          />
-        </FormGroup>
-
-         <FormGroup>
-          <Label for="exampleEmail">Girik C</Label>
-          <Input
-            type="email"
-            name="email"
-            id="exampleEmail"
-            
-          />
-        </FormGroup>
-
-         <FormGroup>
-          <Label for="exampleEmail">SPPT PBB</Label>
-          <Input
-            type="email"
-            name="email"
-            id="exampleEmail"
-            
-          />
-        </FormGroup>
-
-         <FormGroup>
-          <Label for="exampleEmail">Pejabat Pembuat Akta Tanah</Label>
-          <Input
-            type="email"
-            name="email"
-            id="exampleEmail"
-            
-          />
-        </FormGroup>
-
-         <FormGroup>
-          <Label for="exampleEmail">Pihak Pertama</Label>
-          <Input
-            type="email"
-            name="email"
-            id="exampleEmail"
-            
-          />
-        </FormGroup>
-
-         <FormGroup>
-          <Label for="exampleEmail">Pihak Kedua</Label>
-          <Input
-            type="email"
-            name="email"
-            id="exampleEmail"
-            
-          />
-        </FormGroup>
-
-         <FormGroup>
-          <Label for="exampleEmail">Saksi 1</Label>
-          <Input
-            type="email"
-            name="email"
-            id="exampleEmail"
-            
-          />
-        </FormGroup>
-
-         <FormGroup>
-          <Label for="exampleEmail">Saksi 2</Label>
-          <Input
-            type="email"
-            name="email"
-            id="exampleEmail"
-            
-          />
-        </FormGroup>
-
-         <FormGroup>
-          <Label for="exampleEmail">Team Pembebasan</Label>
-          <Input
-            type="email"
-            name="email"
-            id="exampleEmail"
-            
-          />
-        </FormGroup>
-
-
-        <FormGroup>
-          <Label for="exampleNumber">Tahun pembebasan</Label>
-          <Input
-            type="number"
-            name="number"
-            id="exampleNumber"
-            
-          />
-        </FormGroup>
-
-          </TabPane>
-          <TabPane tabId="3">
-              <FormGroup>
-          <Label for="exampleText">Alamat</Label>
-          <Input type="textarea" name="text" id="exampleText" />
-        </FormGroup>
-
-
-           <FormGroup>
-          <Label for="exampleEmail">Jalan</Label>
-          <Input
-            type="email"
-            name="email"
-            id="exampleEmail"
-            
-          />
-        </FormGroup>
-
-         <FormGroup>
-          <Label for="exampleEmail">Kabupaten / kota</Label>
-          <Input
-            type="email"
-            name="email"
-            id="exampleEmail"
-            
-          />
-        </FormGroup>
-
-         <FormGroup>
-          <Label for="exampleEmail">Desa / Kelurahan</Label>
-          <Input
-            type="email"
-            name="email"
-            id="exampleEmail"
-            
-          />
-        </FormGroup>
-
-         <FormGroup>
-          <Label for="exampleEmail">Kecamatan</Label>
-          <Input
-            type="email"
-            name="email"
-            id="exampleEmail"
-            
-          />
-        </FormGroup>
-
-         <FormGroup>
-          <Label for="exampleEmail">Provinsi</Label>
-          <Input
-            type="email"
-            name="email"
-            id="exampleEmail"
-            
-          />
-        </FormGroup>
-
-
-          </TabPane>
-        </TabContent>
-
-
-
-          </ModalBody>
-          <ModalFooter>
-            <Button color="primary" onClick={this.submitLokasi}>Simpan</Button>{' '}
-            <Button color="secondary" onClick={this.toggle}>Batal</Button>
-          </ModalFooter>
-        </Modal>
-
-
-         
-
-          <Polygon color="red" positions={multiPolygon2}>
-          </Polygon>
+           <Popup className="request-popup">
+          <div style={{textAlign: "center",
+            height: "350px",
+            marginTop: "30px"}}>
+            <img
+              src="https://cdn3.iconfinder.com/data/icons/basicolor-arrows-checks/24/149_check_ok-512.png"
+              width="150"
+              height="150"
+            />
+            <div className="m-2" 
+            style={{fontWeight: "bold",
+            fontSize: "22px"}}>
+              Success!
+            </div>
+            <span style={{fontSize: "15px",
+            marginBottom: "20px"}}>
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+              eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
+              enim ad minim veniam, quis nostrud exercitation ullamco laboris
+              nisi ut aliquip ex ea commodo consequat.
+            </span>
+            <div className="m-2" style={{fontSize: "15px"}}>
+              Okay
+            </div>
+          </div>
+        </Popup>
 
         </FeatureGroup>
 
-          {
-            this.state.haveUsersLocation ? 
-            <Marker
-              position={position}
-              icon={myIcon}>
-            </Marker> : ''
-          }
-          {this.state.messages.map(message => (
-            <Marker
-              key={message._id}
-              position={[message.latitude, message.longitude]}
-              icon={messageIcon}>
-              <Popup>
-                <p><em>{message.name}:</em> {message.message}</p>
-                { message.otherMessages ? message.otherMessages.map(message => <p key={message._id}><em>{message.name}:</em> {message.message}</p>) : '' }
-              </Popup>
-            </Marker>
-          ))}
+         
+         
         </Map>
 
         
