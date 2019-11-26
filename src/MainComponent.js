@@ -75,7 +75,8 @@ class MainComponent extends Component {
     user:{},
     newLokasi:{},
     getApi: false,
-    showPopUp: false
+    showPopUp: false,
+    faseSimpan: true
   }
 
     this.openPopUp = this.openPopUp.bind(this)
@@ -83,52 +84,52 @@ class MainComponent extends Component {
     this.toggle = this.toggle.bind(this);
     this.toggleTab = this.toggleTab.bind(this);
     this.submitLokasi = this.submitLokasi.bind(this);
-    // this.customPopUp = this.customPopUp.bind(this);
+
   }
   
  
- renderBaseLayerControl() {
-    return (
-      <LayersControl position="bottomright">
-        { this.baseMaps.map(({ name, url, attribution, type, layer, format, checked = false }) => {
-          return type === 'wms' ? (
-            <LayersControl.BaseLayer key={name} name={name} checked={checked} >
-              <WMSTileLayer
-                layers={layer}
-                format={format}
-                transparent={false}
-                url={url}
-                attribution={attribution}
-               />
-            </LayersControl.BaseLayer>
-          ) : (
-            <LayersControl.BaseLayer key={name} name={name} checked={checked} >
-              <TileLayer
-                attribution={attribution}
-                url={url}
-              />
-            </LayersControl.BaseLayer>
-          );
-        }) }
-        <LayersControl.BaseLayer name="ImageryLabels" >
-          <FeatureGroup>
-              <TileLayer
-                attribution="Esri, DigitalGlobe, GeoEye, i-cubed, USDA, USGS, AEX, Getmapping, Aerogrid, IGN, IGP, swisstopo, and the GIS User Community"
-                url="http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-              />
-              <TileLayer
-                attribution=""
-                url="http://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"
-              />
-              <TileLayer
-                attribution=""
-                url="http://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}"
-              />
-          </FeatureGroup>
-        </LayersControl.BaseLayer>
-      </LayersControl>
-    );
-  }
+           renderBaseLayerControl() {
+              return (
+                <LayersControl position="bottomright">
+                  { this.baseMaps.map(({ name, url, attribution, type, layer, format, checked = false }) => {
+                    return type === 'wms' ? (
+                      <LayersControl.BaseLayer key={name} name={name} checked={checked} >
+                        <WMSTileLayer
+                          layers={layer}
+                          format={format}
+                          transparent={false}
+                          url={url}
+                          attribution={attribution}
+                         />
+                      </LayersControl.BaseLayer>
+                    ) : (
+                      <LayersControl.BaseLayer key={name} name={name} checked={checked} >
+                        <TileLayer
+                          attribution={attribution}
+                          url={url}
+                        />
+                      </LayersControl.BaseLayer>
+                    );
+                  }) }
+                  <LayersControl.BaseLayer name="ImageryLabels" >
+                    <FeatureGroup>
+                        <TileLayer
+                          attribution="Esri, DigitalGlobe, GeoEye, i-cubed, USDA, USGS, AEX, Getmapping, Aerogrid, IGN, IGP, swisstopo, and the GIS User Community"
+                          url="http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+                        />
+                        <TileLayer
+                          attribution=""
+                          url="http://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"
+                        />
+                        <TileLayer
+                          attribution=""
+                          url="http://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}"
+                        />
+                    </FeatureGroup>
+                  </LayersControl.BaseLayer>
+                </LayersControl>
+              );
+            }
 
 modalInfo(){
   return(
@@ -438,12 +439,28 @@ modalInfo(){
 
 
                           </ModalBody>
-                          <ModalFooter>
-                            <Button color="primary" onClick={this.submitLokasi}>Simpan</Button>{' '}
-
-                            <Button color="secondary" onClick={this.toggle}>Batal</Button>
-                          </ModalFooter>
-                        </Modal>
+              <ModalFooter>
+                {this.state.faseSimpan?
+                (
+                <div> 
+                <Button color="info" onClick={this.submitLokasi}>Simpan</Button> {'  '}
+                <Button color="secondary" onClick={this.toggle}>Batal</Button>
+                </div>
+                )
+                :
+                (
+                <div>
+                <Button color="info" onClick={this.submitLokasi}>Ubah</Button> {'  '}
+                <Button color="danger" onClick={this.deleteLokasi()}>Hapus</Button> {'  '}
+                 <Button color="secondary" onClick={()=> this.setState(prevState => ({
+                  modal: !prevState.modal
+                }))}>Batal</Button>
+                </div>
+                )
+              }
+               
+            </ModalFooter>
+    </Modal>
   )
 }
 
@@ -464,30 +481,45 @@ modalInfo(){
 
 
     const popupContent = ` <Popup>
-    
-    No Peta Denah: ${feature.properties.no_peta_denah?feature.properties.no_peta_denah:'-'}
-    <br />
-    Nama Penjual: ${feature.properties.nama_penjual?feature.properties.nama_penjual:'-'}
-    <br />
-    Luas Tanah: ${feature.properties.luas_tanah?feature.properties.luas_tanah:'-'}
-    <br />
-    No Akta Jual Beli: ${feature.properties.no_akta_jual_beli?feature.properties.no_akta_jual_beli:'-'}
-    <br />
-    Tanggal Akta Jual Beli: ${feature.properties.tgl_akta_jual_beli?feature.properties.tgl_akta_jual_beli:'-'}
-    <br />
-    Luas Tanah: ${feature.properties.luas_tanah?feature.properties.luas_tanah:'-'}
-    <br />
-    Luas Awal: ${feature.properties.luas_awal?feature.properties.luas_awal:'-'}
-    <br />
-    Luas Akhir: ${feature.properties.luas_akhir?feature.properties.luas_akhir:'-'}
-    <br />
-    Tanggal Input: ${feature.properties.date?feature.properties.date:'-'}
-    <br />  
-    <br />
-    <br />
-    
-   
-   
+
+    <div style={{textAlign: "center",
+            height: "350px",
+            marginTop: "30px"}}>
+            <img
+              src="https://icon-library.net/images/land-icon-png/land-icon-png-8.jpg"
+              width="150"
+              height="150"
+            />
+              <br />
+              <br />
+
+            <div className="m-2" 
+            style={{fontWeight: "bold",
+            fontSize: "22px"}}>
+              
+            </div>
+            <span style={{fontSize: "15px",
+            marginBottom: "20px"}}>
+              No Peta Denah: ${feature.properties.no_peta_denah?feature.properties.no_peta_denah:'-'}
+              <br />
+              Nama Penjual: ${feature.properties.nama_penjual?feature.properties.nama_penjual:'-'}
+              <br />
+              Luas Tanah: ${feature.properties.luas_tanah?feature.properties.luas_tanah:'-'}
+              <br />
+              No Akta Jual Beli: ${feature.properties.no_akta_jual_beli?feature.properties.no_akta_jual_beli:'-'}
+              <br />
+              Tanggal Akta Jual Beli: ${feature.properties.tgl_akta_jual_beli?feature.properties.tgl_akta_jual_beli:'-'}
+              <br />
+              Luas Tanah: ${feature.properties.luas_tanah?feature.properties.luas_tanah:'-'}
+              <br />
+              Luas Awal: ${feature.properties.luas_awal?feature.properties.luas_awal:'-'}
+              <br />
+              Luas Akhir: ${feature.properties.luas_akhir?feature.properties.luas_akhir:'-'}
+              <br />
+              Tanggal Input: ${feature.properties.date?feature.properties.date:'-'}
+            </span>
+          
+          </div>
     
     </Popup>`
    
@@ -500,19 +532,15 @@ modalInfo(){
             layer.bindPopup(popup)
           }
 
-    });
-
-
-    
+    }); 
     
   }
-  
-
 
   openPopUp(e){
     console.log('ini klikz', e.layer.feature);
     this.setState({
-      modal: true
+      modal: true,
+      faseSimpan: false
     })
    
   }
@@ -522,6 +550,7 @@ modalInfo(){
     this.setState(prevState => ({
       modal: !prevState.modal
     }));
+    this.props.history.push('/');
   }
 
   refreshPage(){ 
@@ -551,12 +580,10 @@ modalInfo(){
     });
 
 
-
     this.setState(prevState => ({
       modal: !prevState.modal
     }));
   }
-
 
   async deleteLokasi(id){
 
@@ -629,6 +656,8 @@ modalInfo(){
         console.log('test', joinObjectnya)
         }).catch((err)=>{
           console.log('ini errornya', err)
+           localStorage.clear()
+           this.props.history.push('/');
         })
 
     }else{
@@ -648,6 +677,10 @@ modalInfo(){
     this.setState(prevState => ({
       modal: !prevState.modal
     }));
+
+    this.setState({
+      faseSimpan: true
+    })
 
     console.log('state', this.state)
     
@@ -770,36 +803,7 @@ modalInfo(){
 
   }
 
-  formIsValid = () => {
-    let { name, message } = this.state.userMessage;
-    name = name.trim();
-    message = message.trim();
-
-    const validMessage =
-      name.length > 0 && name.length <= 500 &&
-      message.length > 0 && message.length <= 500;
-
-    return validMessage && this.state.haveUsersLocation ? true : false;
-  }
-
-  formSubmitted = (event) => {
-    event.preventDefault();
-    
-    if (this.formIsValid()) {
-      this.setState({
-        sendingMessage: true
-      });
-
-      const message = {
-        name: this.state.userMessage.name,
-        message: this.state.userMessage.message,
-        latitude: this.state.location.lat,
-        longitude: this.state.location.lng,
-      };
-
-
-    }
-  }
+  
 
 
    dataGeo = () => {
@@ -850,9 +854,14 @@ modalInfo(){
 
 
           <LayersControl position='bottomright'>
+
+          <BaseLayer  name='Google Maps Hydrid'>
+            <GoogleLayer googlekey={key}  maptype={hydrid}  libraries={['geometry', 'places']} />
+          </BaseLayer> 
           <BaseLayer  name='OpenStreetMap.Mapnik'>
             <TileLayer  url="http://{s}.tile.osm.org/{z}/{x}/{y}.png"/>
           </BaseLayer>
+
          <BaseLayer checked name='Google Maps Roads'>
             <GoogleLayer googlekey={key}  maptype={road} />
           </BaseLayer>
@@ -862,9 +871,7 @@ modalInfo(){
            <BaseLayer  name='Google Maps Satellite'>
             <GoogleLayer googlekey={key}  maptype={satellite} />
           </BaseLayer>
-            <BaseLayer  name='Google Maps Hydrid'>
-            <GoogleLayer googlekey={key}  maptype={hydrid}  libraries={['geometry', 'places']} />
-          </BaseLayer>  
+            
           <BaseLayer  name='Google Maps with Libraries'>
             <GoogleLayer googlekey={key}  maptype={hydrid}  libraries={['geometry', 'places']} />
           </BaseLayer>        
