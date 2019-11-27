@@ -136,7 +136,7 @@ class MainComponent extends Component {
 modalInfo(){
   return(
        <Modal isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
-                          <ModalHeader toggle={this.toggle}>Informasi Tanah</ModalHeader>
+                          <ModalHeader toggle={this.toggle}>Informasi Tanah {this.state.geoJsonClicked.properties?this.state.geoJsonClicked.properties.no_peta_denah:''}</ModalHeader>
                           <ModalBody>
                             
                           <Nav tabs>
@@ -541,9 +541,10 @@ modalInfo(){
   openPopUp(e){
     console.log('ini klikz', e.layer.feature);
     this.setState({
+      geoJsonClicked: e.layer.feature,
       modal: true,
-      faseSimpan: false,
-      geoJsonClicked: e.layer.feature
+      faseSimpan: false
+     
     })
 
     console.log('ini idclickednya', this.state.geoJsonClicked)
