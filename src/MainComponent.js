@@ -76,7 +76,8 @@ class MainComponent extends Component {
     newLokasi:{},
     getApi: false,
     showPopUp: false,
-    faseSimpan: true
+    faseSimpan: true,
+    geoJsonClicked: {}
   }
 
     this.openPopUp = this.openPopUp.bind(this)
@@ -84,6 +85,7 @@ class MainComponent extends Component {
     this.toggle = this.toggle.bind(this);
     this.toggleTab = this.toggleTab.bind(this);
     this.submitLokasi = this.submitLokasi.bind(this);
+    this.deleteLokasi = this.deleteLokasi.bind(this);
 
   }
   
@@ -451,7 +453,7 @@ modalInfo(){
                 (
                 <div>
                 <Button color="info" onClick={this.submitLokasi}>Ubah</Button> {'  '}
-                <Button color="danger" onClick={this.deleteLokasi()}>Hapus</Button> {'  '}
+                <Button color="danger" onClick={this.deleteLokasi}>Hapus</Button> {'  '}
                  <Button color="secondary" onClick={()=> this.setState(prevState => ({
                   modal: !prevState.modal
                 }))}>Batal</Button>
@@ -540,8 +542,11 @@ modalInfo(){
     console.log('ini klikz', e.layer.feature);
     this.setState({
       modal: true,
-      faseSimpan: false
+      faseSimpan: false,
+      geoJsonClicked: e.layer.feature
     })
+
+    console.log('ini idclickednya', this.state.geoJsonClicked)
    
   }
 
@@ -576,7 +581,7 @@ modalInfo(){
         geojsonApi: {...this.state.geojsonApi, ...joinObject}
       })
     }).catch((err)=>{
-      console.log('ini error', err)
+      console.log('ini errorsubmit', err)
     });
 
 
@@ -585,20 +590,20 @@ modalInfo(){
     }));
   }
 
-  async deleteLokasi(id){
+  async deleteLokasi(){
 
-    console.log('hit delete func')
+    console.log('hit delete func', this.state.geoJsonClicked.id)
 
     let api = new Api();
     await api.create();
     let client = api.getClient();
-    client.delete('/lokasi', id).then((res)=>{
+    client.delete('/lokasi/'+this.state.geoJsonClicked.id).then((res)=>{
 
       console.log('ini res postnya',res.data)
       this.props.history.push('/');
      
     }).catch((err)=>{
-      console.log('ini error', err)
+      console.log('ini errordelete', err)
     });
 
   }
@@ -907,32 +912,7 @@ modalInfo(){
          {this.modalInfo()}
                        
 
-           <Popup className="request-popup">
-          <div style={{textAlign: "center",
-            height: "350px",
-            marginTop: "30px"}}>
-            <img
-              src="https://cdn3.iconfinder.com/data/icons/basicolor-arrows-checks/24/149_check_ok-512.png"
-              width="150"
-              height="150"
-            />
-            <div className="m-2" 
-            style={{fontWeight: "bold",
-            fontSize: "22px"}}>
-              Success!
-            </div>
-            <span style={{fontSize: "15px",
-            marginBottom: "20px"}}>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-              eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-              enim ad minim veniam, quis nostrud exercitation ullamco laboris
-              nisi ut aliquip ex ea commodo consequat.
-            </span>
-            <div className="m-2" style={{fontSize: "15px"}}>
-              Okay
-            </div>
-          </div>
-        </Popup>
+         
 
         </FeatureGroup>
 
