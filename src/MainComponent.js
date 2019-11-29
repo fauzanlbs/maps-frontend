@@ -77,7 +77,8 @@ class MainComponent extends Component {
     getApi: false,
     showPopUp: false,
     faseSimpan: true,
-    geoJsonClicked: {}
+    geoJsonClicked: {},
+    role: ''
   }
 
     this.openPopUp = this.openPopUp.bind(this)
@@ -445,18 +446,25 @@ modalInfo(){
                 {this.state.faseSimpan?
                 (
                 <div> 
-                <Button color="info" onClick={this.submitLokasi}>Simpan</Button> {'  '}
-                <Button color="secondary" onClick={this.toggle}>Batal</Button>
+                <Button size="sm" color="info" onClick={this.submitLokasi}>Simpan</Button> {'  '}
+                <Button size="sm" color="secondary" onClick={this.toggle}>Keluar</Button>
                 </div>
                 )
                 :
                 (
                 <div>
-                <Button color="info" onClick={this.submitLokasi}>Ubah</Button> {'  '}
-                <Button color="danger" onClick={this.deleteLokasi}>Hapus</Button> {'  '}
-                 <Button color="secondary" onClick={()=> this.setState(prevState => ({
+                {this.state.role === 'admin'?
+                <div>
+                <Button size="sm" color="info" onClick={this.submitLokasi}>Ubah</Button>  {'  '}
+                <Button size="sm" color="danger" onClick={this.deleteLokasi}>Hapus</Button> {'  '}
+                <Button size="sm" color="secondary" onClick={()=> this.setState(prevState => ({
                   modal: !prevState.modal
-                }))}>Batal</Button>
+                }))}>Keluar</Button>
+                </div>
+                :<Button size="sm" color="secondary" onClick={()=> this.setState(prevState => ({
+                  modal: !prevState.modal
+                }))}>Keluar</Button>}
+                 
                 </div>
                 )
               }
@@ -637,9 +645,16 @@ modalInfo(){
   let token = localStorage.getItem('token');
     let userStorage = localStorage.getItem('user');
     let convertUser = JSON.parse(userStorage);
+
+    
+
+    this.setState({
+      role: JSON.parse(localStorage.getItem('user')).name
+    })
+    
     
     console.log('token di main', token)
-    console.log('user di main', convertUser)
+    console.log('user di main', this.state.role)
 
     if(token){
       console.log('masuk setelah validasi token')
@@ -898,7 +913,7 @@ modalInfo(){
               circlemarker: false,
               polyline: false,
               marker: false,
-              polygon: {
+              polygon: this.state.role !=='admin'?false:{
                 showArea: true,
                 shapeOptions: {
                   color: 'red'
