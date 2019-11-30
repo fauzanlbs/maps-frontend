@@ -13,7 +13,6 @@ import hash from 'object-hash';
 import { BaseMapHansonland } from './BaseMapHansonland';
 
 import userLocationURL from './user_location.svg';
-import messageLocationURL from './message_location.svg';
 
 import MessageCardForm from './MessageCardForm';
 import { getLocation } from './API';
@@ -89,6 +88,7 @@ class MainComponent extends Component {
     this.submitLokasi = this.submitLokasi.bind(this);
     this.editLokasi = this.editLokasi.bind(this);
     this.deleteLokasi = this.deleteLokasi.bind(this);
+    
 
   }
   
@@ -404,7 +404,7 @@ modalInfo(){
                                               <FormGroup>
                                                 <Label size="sm" for="exampleEmail">Nomor Peta/Denah</Label >
                                                 <Input placeholder="BC98723" bsSize="sm"
-                                                  value={this.state.geoJsonClicked.properties?this.state.geoJsonClicked.properties.no_peta_denah:''}
+                                                  value={this.state.formProperties.no_peta_denah}
                                                   onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,no_peta_denah:e.target.value} })} 
                                               />
                                              </FormGroup>
@@ -412,7 +412,10 @@ modalInfo(){
                                                <FormGroup>
                                                 <Label size="sm"  for="exampleEmail">Nomor Akta Jual beli</Label >
                                                 <Input placeholder="0980C234" bsSize="sm"
-                                                  value={this.state.geoJsonClicked.properties?this.state.geoJsonClicked.properties.no_akta_jual_beli:''}
+                                                  
+                                                  
+                                                  
+                                                  value={this.state.formProperties.no_akta_jual_beli}
                                                   onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,no_akta_jual_beli:e.target.value} })}
                                                 />
                                               </FormGroup>
@@ -424,14 +427,14 @@ modalInfo(){
                                                 name="date"
                                                 id="exampleDate"
                                                 placeholder="date placeholder"
-                                                value={this.state.geoJsonClicked.properties?this.state.geoJsonClicked.properties.tgl_akta_jual_beli:''}
+                                                value={this.state.formProperties.tgl_akta_jual_beli}
                                                 onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,tgl_akta_jual_beli:e.target.value} })}
                                               />
                                               </FormGroup>
 
                                               <FormGroup>
                                               <Label size="sm"  for="exampleEmail">Nama Penjual</Label >
-                                              <Input bsSize="sm" value={this.state.geoJsonClicked.properties?this.state.geoJsonClicked.properties.nama_penjual:''}
+                                              <Input bsSize="sm" value={this.state.formProperties.nama_penjual}
                                                 onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,nama_penjual:e.target.value} })}
                                               />
                                              </FormGroup>
@@ -443,7 +446,7 @@ modalInfo(){
                                                 name="color"
                                                 id="exampleColor"
                                                 placeholder="color placeholder"
-                                                value={this.state.geoJsonClicked.properties?this.state.geoJsonClicked.properties.warna_wilayah:''}
+                                                value={this.state.formProperties.warna_wilayah}
                                                 onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,warna_wilayah:e.target.value} })}
                                               />
                                              </FormGroup>
@@ -454,7 +457,7 @@ modalInfo(){
                                                 type="number"
                                                 name="number"
                                                 id="exampleNumber"
-                                                value={this.state.geoJsonClicked.properties?this.state.geoJsonClicked.properties.luas_tanah:''}
+                                                value={this.state.formProperties.luas_tanah}
                                                 onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,luas_tanah:e.target.value} })}
                                               />
                                              </FormGroup>
@@ -466,7 +469,7 @@ modalInfo(){
                                                       type="number"
                                                       name="number"
                                                       id="exampleNumber"
-                                                      value={this.state.geoJsonClicked.properties?this.state.geoJsonClicked.properties.luas_awal:''}
+                                                      value={this.state.formProperties.luas_awal}
                                                 onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,luas_awal:e.target.value} })}
                                                     />
                                            </FormGroup>
@@ -478,7 +481,7 @@ modalInfo(){
                                                       type="number"
                                                       name="number"
                                                       id="exampleNumber"
-                                                      value={this.state.geoJsonClicked.properties?this.state.geoJsonClicked.properties.luas_akhir:''}
+                                                      value={this.state.formProperties.luas_akhir}
                                                 onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,luas_akhir:e.target.value} })}
                                                     />
                                           </FormGroup>
@@ -625,10 +628,7 @@ modalInfo(){
   }
 
   onEachFeature(feature: Object, layer: Object) {
-    console.log('ini featurnya per item',feature)
-     console.log('ini layernya per item',layer)
-
-
+ 
     const popupContent = ` <Popup>
 
     <div style={{textAlign: "center",
@@ -686,15 +686,15 @@ modalInfo(){
   }
 
   openPopUp(e){
-    console.log('ini klikz', e.layer.feature);
+   
     this.setState({
       geoJsonClicked: e.layer.feature,
+      formProperties: e.layer.feature.properties,
       modalInfo: true,
       faseSimpan: false
      
     })
 
-    console.log('ini idclickednya', this.state.geoJsonClicked)
    
   }
 
@@ -710,20 +710,16 @@ modalInfo(){
     window.parent.location = window.parent.location.href; 
   }
 
+
   async submitLokasi(){
 
-    console.log('ini submit', this.state.formProperties, this.state.newLokasi)
-
     let joinObject = {...this.state.newLokasi, properties: this.state.formProperties }
-
-    console.log('ini joinnya', joinObject);
 
     let api = new Api();
     await api.create();
     let client = api.getClient();
     client.post('/lokasi', joinObject).then((res)=>{
 
-      console.log('ini res postnya',res.data)
       this.props.history.push('/');
       this.setState({
         geojsonApi: {...this.state.geojsonApi, ...joinObject}
@@ -740,16 +736,15 @@ modalInfo(){
 
   async editLokasi(){
 
-    console.log('ini edit', this.state.geoJsonClicked)
-
-    
-
+    let data= {
+      properties: this.state.formProperties
+    }
+ 
     let api = new Api();
     await api.create();
     let client = api.getClient();
-    client.put('/lokasi/'+this.state.geoJsonClicked.id, this.state.geoJsonClicked).then((res)=>{
+    client.put('/lokasi/'+this.state.geoJsonClicked.id, data).then((res)=>{
 
-      console.log('ini res editnya',res.data)
       this.props.history.push('/');
       
     }).catch((err)=>{
@@ -764,14 +759,11 @@ modalInfo(){
 
   async deleteLokasi(){
 
-    console.log('hit delete func', this.state.geoJsonClicked.id)
-
     let api = new Api();
     await api.create();
     let client = api.getClient();
     client.delete('/lokasi/'+this.state.geoJsonClicked.id).then((res)=>{
 
-      console.log('ini res postnya',res.data)
       this.props.history.push('/');
      
     }).catch((err)=>{
@@ -816,15 +808,16 @@ modalInfo(){
     })
     
     
-    console.log('token di main', token)
-    console.log('user di main', this.state.role)
+    // console.log('token di main', token)
+    // console.log('user di main', this.state.role)
 
     if(token){
-      console.log('masuk setelah validasi token')
+      // console.log('masuk setelah validasi token')
         let api = new Api()
          api.create();
         let client = api.getClient()
         client.get('/lokasi').then((res) => {
+          // console.log('ini data get dr api', res.data.data.lokasis)
           this.setState({
             geojsonApi: res.data.data.lokasis
           })
@@ -837,7 +830,7 @@ modalInfo(){
             getApi: true
           })
 
-        console.log('test', joinObjectnya)
+        // console.log('test', joinObjectnya)
         }).catch((err)=>{
           console.log('ini errornya', err)
            localStorage.clear()
@@ -865,8 +858,6 @@ modalInfo(){
     this.setState({
       faseSimpan: true
     })
-
-    console.log('state', this.state)
     
     let newLokasiJson = data.layer.toGeoJSON();
 
@@ -874,36 +865,34 @@ modalInfo(){
       newLokasi: newLokasiJson
     })
     
-    // coba["properties"]["coba"] = "lagi";
-    console.log(this.state.newLokasi,'coba ini');
   }
 
   _onEdit = (data) => {
-    console.log('onEdit', data)
-    console.log('state', this.state)
+    // console.log('onEdit', data)
+    // console.log('state', this.state)
   }
 
   _onDelete = (data) => {
-    console.log('ondelete', data)
-    console.log('state', this.state)
+    // console.log('ondelete', data)
+    // console.log('state', this.state)
   }
 
   _onEditVertex = (data) => {
-    console.log('oneditvertex', data)
-    console.log('state', this.state)
+    // console.log('oneditvertex', data)
+    // console.log('state', this.state)
   }
 
   _onClickMap = (data) => {
-    console.log('ini data yg di klik', data)
+    // console.log('ini data yg di klik', data)
     data.layer.options.color = "red";
     let test = data.layer.toGeoJSON();
 
     if(test.properties.length !== 0){
-      console.log('sudah dua kali');
+      // console.log('sudah dua kali');
     }
     test["properties"]["cobain"] = "lagiz";
-    console.log('ini di klik map: ', test)
-    console.log('ini refnya', this._editableFG);
+    // console.log('ini di klik map: ', test)
+    // console.log('ini refnya', this._editableFG);
     this.setState(prevState => ({
       modal: !prevState.modal
     }));
@@ -921,22 +910,20 @@ modalInfo(){
     // populate the leaflet FeatureGroup with the geoJson layers
 
     let leafletGeoJSON = new L.GeoJSON(london_postcodes);
-    // console.log('ini leafletgeojson: ',leafletGeoJSON);
-    // console.log('ini refnya ', reactFGref)
+
     if(reactFGref){
       let leafletFG = reactFGref.leafletElement;      
     }
-    // console.log('ini convertnya', leafletFG);
 
     // // store the ref for future access to content
 
      this._editableFG = reactFGref;
 
-     console.log(this._editableFG,'ini hasilnya');
+    //  console.log(this._editableFG,'ini hasilnya');
 
      if(this._editableFG){
          const geojsonData = this._editableFG.leafletElement.toGeoJSON();
-         console.log('ini geojsondatanya', geojsonData);
+        //  console.log('ini geojsondatanya', geojsonData);
      }
   
   }
@@ -992,14 +979,15 @@ modalInfo(){
 
    dataGeo = () => {
     if(this.state.geojsonApi){
-      console.log('ini isi londonjson', london_postcodes)
+     
       const json = london_postcodes;
       const geojsonApinya = this.state.geojsonApi;
+     
       return <GeoJSON  key={hash(json)}
           data={geojsonApinya}  
           style={this.geoJSONStyle}
           onEachFeature={this.onEachFeature}
-          onClick={(e)=> {console.log('tes ini klik', e)}}
+          onClick={(e)=> {console.log('', e)}}
         />
     }
   }
@@ -1087,13 +1075,10 @@ modalInfo(){
           
           />
           
-
          {this.modalInsert()}
 
          {this.modalInfo()}
-                       
-
-         
+     
 
         </FeatureGroup>
 
@@ -1106,9 +1091,6 @@ modalInfo(){
           <Button onClick={this.showMessageForm} className="message-form"  color="info">=</Button> 
           
           {this.state.sideBarVisible?<MessageCardForm user={JSON.parse(localStorage.getItem('user'))} logout={this.logOut} cancelMessage={this.cancelMessage} findMe={this.findMe} />:<div/> }
-          
-        
-       
 
       </div>
     );
