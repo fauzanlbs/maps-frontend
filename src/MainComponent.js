@@ -3,7 +3,7 @@ import L from 'leaflet';
 import { Map, TileLayer, Marker, Popup,FeatureGroup, Circle, Polygon, LayersControl, GeoJSON, WMSTileLayer, withLeaflet } from 'react-leaflet';
 
 import { Card, CardText, Button, Modal, ModalHeader, ModalBody, ModalFooter,
-TabContent, TabPane, Nav, NavItem, NavLink,  CardTitle, Row, Col, Form, FormGroup, Label, Input, FormText  } from 'reactstrap';
+TabContent, TabPane, Nav, NavItem, NavLink,  CardTitle, Row, Col, Form, FormGroup, Label , Input, FormText  } from 'reactstrap';
 import classnames from 'classnames';
 
 import { EditControl } from "react-leaflet-draw"
@@ -114,7 +114,7 @@ class MainComponent extends Component {
                       </LayersControl.BaseLayer>
                     );
                   }) }
-                  <LayersControl.BaseLayer name="ImageryLabels" >
+                  <LayersControl.BaseLayer name="ImageryLabel s" >
                     <FeatureGroup>
                         <TileLayer
                           attribution="Esri, DigitalGlobe, GeoEye, i-cubed, USDA, USGS, AEX, Getmapping, Aerogrid, IGN, IGP, swisstopo, and the GIS User Community"
@@ -134,314 +134,221 @@ class MainComponent extends Component {
               );
             }
 
-modalInfo(){
+modalInsert(){
   return(
-       <Modal isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
-                          <ModalHeader toggle={this.toggle}>Informasi Tanah {this.state.geoJsonClicked.properties?this.state.geoJsonClicked.properties.no_peta_denah:''}</ModalHeader>
-                          <ModalBody>
-                            
+       <Modal fade={false} isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
+                          <ModalHeader toggle={this.toggle}>Input Tanah {this.state.geoJsonClicked.properties?this.state.geoJsonClicked.properties.no_peta_denah:''}</ModalHeader>
+                          <ModalBody>                  
                           <Nav tabs>
-                          <NavItem>
-                            <NavLink
-                              className={classnames({ active: this.state.activeTab === '1' })}
-                              onClick={() => { this.toggleTab('1'); }}
-                            >
-                              Detail 1
-                            </NavLink>
-                          </NavItem>
-                          <NavItem>
-                            <NavLink
-                              className={classnames({ active: this.state.activeTab === '2' })}
-                              onClick={() => { this.toggleTab('2'); }}
-                            >
-                              Detail 2
-                            </NavLink>
-                          </NavItem>
-                           <NavItem>
-                            <NavLink
-                              className={classnames({ active: this.state.activeTab === '3' })}
-                              onClick={() => { this.toggleTab('3'); }}
-                            >
-                              Detail 3
-                            </NavLink>
-                          </NavItem>
-                        </Nav>
-                        <TabContent activeTab={this.state.activeTab}>
-                          <TabPane tabId="1">
-                            
+                                  <NavItem>
+                                    <NavLink
+                                      className={classnames({ active: this.state.activeTab === '1' })}
+                                      onClick={() => { this.toggleTab('1'); }}
+                                    >
+                                      Detail 1
+                                    </NavLink>
+                                  </NavItem>
+                                  <NavItem>
+                                    <NavLink
+                                      className={classnames({ active: this.state.activeTab === '2' })}
+                                      onClick={() => { this.toggleTab('2'); }}
+                                    >
+                                      Detail 2
+                                    </NavLink>
+                                  </NavItem>
+                                   <NavItem>
+                                    <NavLink
+                                      className={classnames({ active: this.state.activeTab === '3' })}
+                                      onClick={() => { this.toggleTab('3'); }}
+                                    >
+                                      Detail 3
+                                    </NavLink>
+                                  </NavItem>
+                         </Nav>
+                         <TabContent activeTab={this.state.activeTab}>
+                                  <TabPane tabId="1">
+                                  <Form>
+                                              <FormGroup>
+                                                <Label  size="sm" for="exampleEmail">Nomor Peta/Denah</Label >
+                                                <Input placeholder="BC98723" bsSize="sm"
+                                                  value={this.state.formProperties.no_peta_denah}
+                                                  onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,no_peta_denah:e.target.value} })} 
+                                              />
+                                             </FormGroup>
 
-                            <Form>
-                       
-                        <FormGroup>
-                          <Label for="exampleEmail">Nomor Peta/Denah</Label>
-                          <Input
-                            type="email"
-                            name="email"
-                            id="exampleEmail"
-                            value={this.state.formProperties.no_peta_denah}
-                            onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,no_peta_denah:e.target.value} })}
-                            
-                          />
-                        </FormGroup>
+                                               <FormGroup>
+                                                <Label  for="exampleEmail">Nomor Akta Jual beli</Label >
+                                                <Input placeholder="0980C234" bsSize="sm"
+                                                  
+                                                  
+                                                  
+                                                  value={this.state.formProperties.no_akta_jual_beli}
+                                                  onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,no_akta_jual_beli:e.target.value} })}
+                                                />
+                                              </FormGroup>
+                                            
+                                              <FormGroup>
+                                              <Label  for="exampleDate">Tanggal Akta Jual Beli</Label >
+                                              <Input
+                                                type="date"
+                                                name="date"
+                                                id="exampleDate"
+                                                placeholder="date placeholder"
+                                                value={this.state.formProperties.tgl_akta_jual_beli}
+                                                onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,tgl_akta_jual_beli:e.target.value} })}
+                                              />
+                                              </FormGroup>
 
-                         <FormGroup>
-                          <Label for="exampleEmail">Nomor Akta Jual beli</Label>
-                          <Input
-                            type="email"
-                            name="email"
-                            id="exampleEmail"
-                            value={this.state.formProperties.no_akta_jual_beli}
-                            onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,no_akta_jual_beli:e.target.value} })}
-                          />
-                        </FormGroup>
-                        
-                        
-                          <FormGroup>
-                          <Label for="exampleDate">Tanggal Akta Jual Beli</Label>
-                          <Input
-                            type="date"
-                            name="date"
-                            id="exampleDate"
-                            placeholder="date placeholder"
-                            value={this.state.formProperties.tgl_akta_jual_beli}
-                            onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,tgl_akta_jual_beli:e.target.value} })}
-                          />
-                          </FormGroup>
+                                              <FormGroup>
+                                              <Label  for="exampleEmail">Nama Penjual</Label >
+                                              <Input bsSize="sm" value={this.state.formProperties.nama_penjual}
+                                                onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,nama_penjual:e.target.value} })}
+                                              />
+                                             </FormGroup>
 
-                          <FormGroup>
-                          <Label for="exampleEmail">Nama Penjual</Label>
-                          <Input
-                            type="email"
-                            name="email"
-                            id="exampleEmail"
-                            value={this.state.formProperties.nama_penjual}
-                            onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,nama_penjual:e.target.value} })}
-                          />
-                        </FormGroup>
+                                              <FormGroup>
+                                              <Label  for="exampleColor">Warna Wilayah</Label >
+                                              <Input bsSize="sm"
+                                                type="color"
+                                                name="color"
+                                                id="exampleColor"
+                                                placeholder="color placeholder"
+                                                value={this.state.formProperties.warna_wilayah}
+                                                onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,warna_wilayah:e.target.value} })}
+                                              />
+                                             </FormGroup>
 
-                          <FormGroup>
-                          <Label for="exampleColor">Warna Wilayah</Label>
-                          <Input
-                            type="color"
-                            name="color"
-                            id="exampleColor"
-                            placeholder="color placeholder"
-                            value={this.state.formProperties.warna_wilayah}
-                            onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,warna_wilayah:e.target.value} })}
-                          />
-                        </FormGroup>
-
-                         <FormGroup>
-                          <Label for="exampleNumber">Luas Tanah</Label>
-                          <Input
-                            type="number"
-                            name="number"
-                            id="exampleNumber"
-                            value={this.state.formProperties.luas_tanah}
-                            onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,luas_tanah:e.target.value} })}
-                          />
-                        </FormGroup>
+                                             <FormGroup>
+                                              <Label  for="exampleNumber">Luas Tanah</Label >
+                                              <Input bsSize="sm"
+                                                type="number"
+                                                name="number"
+                                                id="exampleNumber"
+                                                value={this.state.formProperties.luas_tanah}
+                                                onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,luas_tanah:e.target.value} })}
+                                              />
+                                             </FormGroup>
 
 
-                       <FormGroup>
-                                <Label for="exampleNumber">Luas Awal</Label>
-                                <Input
-                                  type="number"
-                                  name="number"
-                                  id="exampleNumber"
-                                  value={this.state.formProperties.luas_awal}
-                            onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,luas_awal:e.target.value} })}
-                                />
-                              </FormGroup>
+                                           <FormGroup>
+                                                    <Label  for="exampleNumber">Luas Awal</Label >
+                                                    <Input bsSize="sm"
+                                                      type="number"
+                                                      name="number"
+                                                      id="exampleNumber"
+                                                      value={this.state.formProperties.luas_awal}
+                                                onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,luas_awal:e.target.value} })}
+                                                    />
+                                           </FormGroup>
 
 
-                       <FormGroup>
-                                <Label for="exampleNumber">Luas Akhir Pembelian</Label>
-                                <Input
-                                  type="number"
-                                  name="number"
-                                  id="exampleNumber"
-                                  value={this.state.formProperties.luas_akhir}
-                            onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,luas_akhir:e.target.value} })}
-                                />
-                      </FormGroup>
+                                           <FormGroup>
+                                                    <Label  for="exampleNumber">Luas Akhir Pembelian</Label >
+                                                    <Input bsSize="sm"
+                                                      type="number"
+                                                      name="number"
+                                                      id="exampleNumber"
+                                                      value={this.state.formProperties.luas_akhir}
+                                                onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,luas_akhir:e.target.value} })}
+                                                    />
+                                          </FormGroup>
+                                </Form>
+                                </TabPane>
 
-
-
-
-
-                      </Form>
-
-
-                          </TabPane>
-                          <TabPane tabId="2">
+                              <TabPane tabId="2">
                              
-                              <FormGroup>
-                          <Label for="exampleEmail">Rensil Nomor</Label>
-                          <Input
-                            type="email"
-                            name="email"
-                            id="exampleEmail"
-                            
-                          />
-                        </FormGroup>
+                                         <FormGroup>
+                                        <Label  for="exampleEmail">Rensil Nomor</Label >
+                                        <Input bsSize="sm" />
+                                      </FormGroup>
 
-                         <FormGroup>
-                          <Label for="exampleEmail">Girik C</Label>
-                          <Input
-                            type="email"
-                            name="email"
-                            id="exampleEmail"
-                            
-                          />
-                        </FormGroup>
+                                       <FormGroup>
+                                        <Label  for="exampleEmail">Girik C</Label >
+                                        <Input bsSize="sm"/>
+                                      </FormGroup>
 
-                         <FormGroup>
-                          <Label for="exampleEmail">SPPT PBB</Label>
-                          <Input
-                            type="email"
-                            name="email"
-                            id="exampleEmail"
-                            
-                          />
-                        </FormGroup>
+                                       <FormGroup>
+                                        <Label  for="exampleEmail">SPPT PBB</Label >
+                                        <Input bsSize="sm"/>
+                                      </FormGroup>
 
-                         <FormGroup>
-                          <Label for="exampleEmail">Pejabat Pembuat Akta Tanah</Label>
-                          <Input
-                            type="email"
-                            name="email"
-                            id="exampleEmail"
-                            
-                          />
-                        </FormGroup>
+                                       <FormGroup>
+                                        <Label  for="exampleEmail">Pejabat Pembuat Akta Tanah</Label >
+                                        <Input bsSize="sm"/>
+                                      </FormGroup>
 
-                         <FormGroup>
-                          <Label for="exampleEmail">Pihak Pertama</Label>
-                          <Input
-                            type="email"
-                            name="email"
-                            id="exampleEmail"
-                            
-                          />
-                        </FormGroup>
+                                       <FormGroup>
+                                        <Label  for="exampleEmail">Pihak Pertama</Label >
+                                        <Input bsSize="sm"/>
+                                      </FormGroup>
 
-                         <FormGroup>
-                          <Label for="exampleEmail">Pihak Kedua</Label>
-                          <Input
-                            type="email"
-                            name="email"
-                            id="exampleEmail"
-                            
-                          />
-                        </FormGroup>
+                                       <FormGroup>
+                                        <Label  for="exampleEmail">Pihak Kedua</Label >
+                                        <Input bsSize="sm"/>
+                                      </FormGroup>
 
-                         <FormGroup>
-                          <Label for="exampleEmail">Saksi 1</Label>
-                          <Input
-                            type="email"
-                            name="email"
-                            id="exampleEmail"
-                            
-                          />
-                        </FormGroup>
+                                       <FormGroup>
+                                        <Label  for="exampleEmail">Saksi 1</Label >
+                                        <Input bsSize="sm"/>
+                                      </FormGroup>
 
-                         <FormGroup>
-                          <Label for="exampleEmail">Saksi 2</Label>
-                          <Input
-                            type="email"
-                            name="email"
-                            id="exampleEmail"
-                            
-                          />
-                        </FormGroup>
+                                       <FormGroup>
+                                        <Label  for="exampleEmail">Saksi 2</Label >
+                                        <Input bsSize="sm"/>
+                                      </FormGroup>
 
-                         <FormGroup>
-                          <Label for="exampleEmail">Team Pembebasan</Label>
-                          <Input
-                            type="email"
-                            name="email"
-                            id="exampleEmail"
-                            
-                          />
-                        </FormGroup>
+                                       <FormGroup>
+                                        <Label  for="exampleEmail">Team Pembebasan</Label >
+                                        <Input bsSize="sm"/>
+                                      </FormGroup>
 
 
-                        <FormGroup>
-                          <Label for="exampleNumber">Tahun pembebasan</Label>
-                          <Input
-                            type="number"
-                            name="number"
-                            id="exampleNumber"
-                            
-                          />
-                        </FormGroup>
+                                      <FormGroup>
+                                        <Label  for="exampleNumber">Tahun pembebasan</Label >
+                                        <Input bsSize="sm"
+                                          type="number"
+                                          name="number"
+                                          id="exampleNumber"
+                                          
+                                        />
+                                      </FormGroup>
 
-                          </TabPane>
+                           </TabPane>
                           <TabPane tabId="3">
-                              <FormGroup>
-                          <Label for="exampleText">Alamat</Label>
-                          <Input type="textarea" name="text" id="exampleText" />
-                        </FormGroup>
+
+                                            <FormGroup>
+                                        <Label  for="exampleText">Alamat</Label >
+                                        <Input type="textarea" name="text" id="exampleText" />
+                                      </FormGroup>
 
 
-                           <FormGroup>
-                          <Label for="exampleEmail">Jalan</Label>
-                          <Input
-                            type="email"
-                            name="email"
-                            id="exampleEmail"
-                            
-                          />
-                        </FormGroup>
+                                         <FormGroup>
+                                        <Label  for="exampleEmail">Jalan</Label >
+                                        <Input bsSize="sm"/>
+                                      </FormGroup>
 
-                         <FormGroup>
-                          <Label for="exampleEmail">Kabupaten / kota</Label>
-                          <Input
-                            type="email"
-                            name="email"
-                            id="exampleEmail"
-                            
-                          />
-                        </FormGroup>
+                                       <FormGroup>
+                                        <Label  for="exampleEmail">Kabupaten / kota</Label >
+                                        <Input bsSize="sm"/>
+                                      </FormGroup>
 
-                         <FormGroup>
-                          <Label for="exampleEmail">Desa / Kelurahan</Label>
-                          <Input
-                            type="email"
-                            name="email"
-                            id="exampleEmail"
-                            
-                          />
-                        </FormGroup>
+                                       <FormGroup>
+                                        <Label  for="exampleEmail">Desa / Kelurahan</Label >
+                                        <Input bsSize="sm"/>
+                                      </FormGroup>
 
-                         <FormGroup>
-                          <Label for="exampleEmail">Kecamatan</Label>
-                          <Input
-                            type="email"
-                            name="email"
-                            id="exampleEmail"
-                            
-                          />
-                        </FormGroup>
+                                       <FormGroup>
+                                        <Label  for="exampleEmail">Kecamatan</Label >
+                                        <Input bsSize="sm"/>
+                                      </FormGroup>
 
-                         <FormGroup>
-                          <Label for="exampleEmail">Provinsi</Label>
-                          <Input
-                            type="email"
-                            name="email"
-                            id="exampleEmail"
-                            
-                          />
-                        </FormGroup>
-
-
+                                       <FormGroup>
+                                        <Label  for="exampleEmail">Provinsi</Label >
+                                        <Input bsSize="sm"/>
+                                      </FormGroup>
                           </TabPane>
                         </TabContent>
-
-
-
-                          </ModalBody>
+                        </ModalBody>
               <ModalFooter>
                 {this.state.faseSimpan?
                 (
@@ -473,6 +380,356 @@ modalInfo(){
     </Modal>
   )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+modalInfo(){
+  return(
+       <Modal isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
+                          <ModalHeader toggle={this.toggle}>Informasi Tanah {this.state.geoJsonClicked.properties?this.state.geoJsonClicked.properties.no_peta_denah:''}</ModalHeader>
+                          <ModalBody>                  
+                          <Nav tabs>
+                                  <NavItem>
+                                    <NavLink
+                                      className={classnames({ active: this.state.activeTab === '1' })}
+                                      onClick={() => { this.toggleTab('1'); }}
+                                    >
+                                      Detail 1
+                                    </NavLink>
+                                  </NavItem>
+                                  <NavItem>
+                                    <NavLink
+                                      className={classnames({ active: this.state.activeTab === '2' })}
+                                      onClick={() => { this.toggleTab('2'); }}
+                                    >
+                                      Detail 2
+                                    </NavLink>
+                                  </NavItem>
+                                   <NavItem>
+                                    <NavLink
+                                      className={classnames({ active: this.state.activeTab === '3' })}
+                                      onClick={() => { this.toggleTab('3'); }}
+                                    >
+                                      Detail 3
+                                    </NavLink>
+                                  </NavItem>
+                         </Nav>
+                         <TabContent activeTab={this.state.activeTab}>
+                                  <TabPane tabId="1">
+                                  <Form>
+                                              <FormGroup>
+                                                <Label  for="exampleEmail">Nomor Peta/Denah</Label >
+                                                <Input
+                                                  
+                                                  
+                                                  
+                                                  value={this.state.formProperties.no_peta_denah}
+                                                  onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,no_peta_denah:e.target.value} })} 
+                                              />
+                                             </FormGroup>
+
+                                               <FormGroup>
+                                                <Label  for="exampleEmail">Nomor Akta Jual beli</Label >
+                                                <Input
+                                                  
+                                                  
+                                                  
+                                                  value={this.state.formProperties.no_akta_jual_beli}
+                                                  onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,no_akta_jual_beli:e.target.value} })}
+                                                />
+                                              </FormGroup>
+                                            
+                                              <FormGroup>
+                                              <Label  for="exampleDate">Tanggal Akta Jual Beli</Label >
+                                              <Input
+                                                type="date"
+                                                name="date"
+                                                id="exampleDate"
+                                                placeholder="date placeholder"
+                                                value={this.state.formProperties.tgl_akta_jual_beli}
+                                                onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,tgl_akta_jual_beli:e.target.value} })}
+                                              />
+                                              </FormGroup>
+
+                                              <FormGroup>
+                                              <Label  for="exampleEmail">Nama Penjual</Label >
+                                              <Input
+                                                
+                                                
+                                                
+                                                value={this.state.formProperties.nama_penjual}
+                                                onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,nama_penjual:e.target.value} })}
+                                              />
+                                             </FormGroup>
+
+                                              <FormGroup>
+                                              <Label  for="exampleColor">Warna Wilayah</Label >
+                                              <Input
+                                                type="color"
+                                                name="color"
+                                                id="exampleColor"
+                                                placeholder="color placeholder"
+                                                value={this.state.formProperties.warna_wilayah}
+                                                onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,warna_wilayah:e.target.value} })}
+                                              />
+                                             </FormGroup>
+
+                                             <FormGroup>
+                                              <Label  for="exampleNumber">Luas Tanah</Label >
+                                              <Input
+                                                type="number"
+                                                name="number"
+                                                id="exampleNumber"
+                                                value={this.state.formProperties.luas_tanah}
+                                                onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,luas_tanah:e.target.value} })}
+                                              />
+                                             </FormGroup>
+
+
+                                           <FormGroup>
+                                                    <Label  for="exampleNumber">Luas Awal</Label >
+                                                    <Input
+                                                      type="number"
+                                                      name="number"
+                                                      id="exampleNumber"
+                                                      value={this.state.formProperties.luas_awal}
+                                                onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,luas_awal:e.target.value} })}
+                                                    />
+                                           </FormGroup>
+
+
+                                           <FormGroup>
+                                                    <Label  for="exampleNumber">Luas Akhir Pembelian</Label >
+                                                    <Input
+                                                      type="number"
+                                                      name="number"
+                                                      id="exampleNumber"
+                                                      value={this.state.formProperties.luas_akhir}
+                                                onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,luas_akhir:e.target.value} })}
+                                                    />
+                                          </FormGroup>
+                                </Form>
+                                </TabPane>
+
+                              <TabPane tabId="2">
+                             
+                                         <FormGroup>
+                                        <Label  for="exampleEmail">Rensil Nomor</Label >
+                                        <Input
+                                          
+                                          
+                                          
+                                          
+                                        />
+                                      </FormGroup>
+
+                                       <FormGroup>
+                                        <Label  for="exampleEmail">Girik C</Label >
+                                        <Input
+                                          
+                                          
+                                          
+                                          
+                                        />
+                                      </FormGroup>
+
+                                       <FormGroup>
+                                        <Label  for="exampleEmail">SPPT PBB</Label >
+                                        <Input
+                                          
+                                          
+                                          
+                                          
+                                        />
+                                      </FormGroup>
+
+                                       <FormGroup>
+                                        <Label  for="exampleEmail">Pejabat Pembuat Akta Tanah</Label >
+                                        <Input
+                                          
+                                          
+                                          
+                                          
+                                        />
+                                      </FormGroup>
+
+                                       <FormGroup>
+                                        <Label  for="exampleEmail">Pihak Pertama</Label >
+                                        <Input
+                                          
+                                          
+                                          
+                                          
+                                        />
+                                      </FormGroup>
+
+                                       <FormGroup>
+                                        <Label  for="exampleEmail">Pihak Kedua</Label >
+                                        <Input
+                                          
+                                          
+                                          
+                                          
+                                        />
+                                      </FormGroup>
+
+                                       <FormGroup>
+                                        <Label  for="exampleEmail">Saksi 1</Label >
+                                        <Input
+                                          
+                                          
+                                          
+                                          
+                                        />
+                                      </FormGroup>
+
+                                       <FormGroup>
+                                        <Label  for="exampleEmail">Saksi 2</Label >
+                                        <Input
+                                          
+                                          
+                                          
+                                          
+                                        />
+                                      </FormGroup>
+
+                                       <FormGroup>
+                                        <Label  for="exampleEmail">Team Pembebasan</Label >
+                                        <Input
+                                          
+                                          
+                                          
+                                          
+                                        />
+                                      </FormGroup>
+
+
+                                      <FormGroup>
+                                        <Label  for="exampleNumber">Tahun pembebasan</Label >
+                                        <Input
+                                          type="number"
+                                          name="number"
+                                          id="exampleNumber"
+                                          
+                                        />
+                                      </FormGroup>
+
+                           </TabPane>
+                          <TabPane tabId="3">
+
+                                            <FormGroup>
+                                        <Label  for="exampleText">Alamat</Label >
+                                        <Input type="textarea" name="text" id="exampleText" />
+                                      </FormGroup>
+
+
+                                         <FormGroup>
+                                        <Label  for="exampleEmail">Jalan</Label >
+                                        <Input
+                                          
+                                          
+                                          
+                                          
+                                        />
+                                      </FormGroup>
+
+                                       <FormGroup>
+                                        <Label  for="exampleEmail">Kabupaten / kota</Label >
+                                        <Input
+                                          
+                                          
+                                          
+                                          
+                                        />
+                                      </FormGroup>
+
+                                       <FormGroup>
+                                        <Label  for="exampleEmail">Desa / Kelurahan</Label >
+                                        <Input
+                                          
+                                          
+                                          
+                                          
+                                        />
+                                      </FormGroup>
+
+                                       <FormGroup>
+                                        <Label  for="exampleEmail">Kecamatan</Label >
+                                        <Input
+                                          
+                                          
+                                          
+                                          
+                                        />
+                                      </FormGroup>
+
+                                       <FormGroup>
+                                        <Label  for="exampleEmail">Provinsi</Label >
+                                        <Input
+                                          
+                                          
+                                          
+                                          
+                                        />
+                                      </FormGroup>
+
+
+                          </TabPane>
+                        </TabContent>
+                        </ModalBody>
+              <ModalFooter>
+                {this.state.faseSimpan?
+                (
+                <div> 
+                <Button size="sm" color="info" onClick={this.submitLokasi}>Simpan</Button> {'  '}
+                <Button size="sm" color="secondary" onClick={this.toggle}>Keluar</Button>
+                </div>
+                )
+                :
+                (
+                <div>
+                {this.state.role === 'admin'?
+                <div>
+                <Button size="sm" color="info" onClick={this.submitLokasi}>Ubah</Button>  {'  '}
+                <Button size="sm" color="danger" onClick={this.deleteLokasi}>Hapus</Button> {'  '}
+                <Button size="sm" color="secondary" onClick={()=> this.setState(prevState => ({
+                  modal: !prevState.modal
+                }))}>Keluar</Button>
+                </div>
+                :<Button size="sm" color="secondary" onClick={()=> this.setState(prevState => ({
+                  modal: !prevState.modal
+                }))}>Keluar</Button>}
+                 
+                </div>
+                )
+              }
+               
+            </ModalFooter>
+    </Modal>
+  )
+}
+
+
+
+
+
+
+
+
+
+
+
 
   
   geoJSONStyle(feature: Object) {
@@ -925,7 +1182,7 @@ modalInfo(){
           />
           
 
-         {this.modalInfo()}
+         {this.modalInsert()}
                        
 
          
