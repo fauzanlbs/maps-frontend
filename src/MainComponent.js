@@ -61,7 +61,25 @@ class MainComponent extends Component {
       tgl_akta_jual_beli:'',
       luas_awal:'',
       luas_akhir:'',
-      harga_jual_beli:''
+      harga_jual_beli:'',
+
+      rensil_no: '',
+      girik_c: '',
+      sppt_pbb: '',
+      pejabat_akta:'',
+      pihak_pertama:'',
+      pihak_kedua:'',
+      saksi_pertama:'',
+      saksi_kedua:'',
+      tim_pembebasan:'',
+      tahun_pembebasan: '',
+      alamat: '',
+      jalan: '',
+      kabupaten_kota:'',
+      desa_kelurahan:'',
+      kecamatan:'',
+      provinsi:''
+  
     },
     sideBarVisible: false,
     sendingMessage: false,
@@ -181,9 +199,6 @@ modalInsert(){
                                                <FormGroup>
                                                 <Label size="sm"  for="exampleEmail">Nomor Akta Jual beli</Label >
                                                 <Input placeholder="0980C234" bsSize="sm"
-                                                  
-                                                  
-                                                  
                                                   value={this.state.formProperties.no_akta_jual_beli}
                                                   onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,no_akta_jual_beli:e.target.value} })}
                                                 />
@@ -261,47 +276,59 @@ modalInsert(){
                              
                                          <FormGroup>
                                         <Label size="sm"  for="exampleEmail">Rensil Nomor</Label >
-                                        <Input bsSize="sm" />
+                                        <Input bsSize="sm" 
+                                        value={this.state.formProperties.rensil_no}
+                                                onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,rensil_no:e.target.value} })}/>
                                       </FormGroup>
 
                                        <FormGroup>
                                         <Label size="sm"  for="exampleEmail">Girik C</Label >
-                                        <Input bsSize="sm"/>
+                                        <Input bsSize="sm"
+                                        value={this.state.formProperties.girik_c}
+                                                onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,girik_c:e.target.value} })}/>
                                       </FormGroup>
 
                                        <FormGroup>
                                         <Label size="sm"  for="exampleEmail">SPPT PBB</Label >
-                                        <Input bsSize="sm"/>
+                                        <Input bsSize="sm"
+                                        value={this.state.formProperties.sppt_pbb}
+                                                onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,sppt_pbb:e.target.value} })}/>
                                       </FormGroup>
 
                                        <FormGroup>
                                         <Label size="sm"  for="exampleEmail">Pejabat Pembuat Akta Tanah</Label >
-                                        <Input bsSize="sm"/>
+                                        <Input bsSize="sm" value={this.state.formProperties.pejabat_akta}
+                                                onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,pejabat_akta:e.target.value} })}/>
                                       </FormGroup>
 
                                        <FormGroup>
                                         <Label size="sm"  for="exampleEmail">Pihak Pertama</Label >
-                                        <Input bsSize="sm"/>
+                                        <Input bsSize="sm" value={this.state.formProperties.pihak_pertama}
+                                                onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,pihak_pertama:e.target.value} })}/>
                                       </FormGroup>
 
                                        <FormGroup>
                                         <Label size="sm"  for="exampleEmail">Pihak Kedua</Label >
-                                        <Input bsSize="sm"/>
+                                        <Input bsSize="sm" value={this.state.formProperties.pihak_kedua}
+                                                onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,pihak_kedua:e.target.value} })}/>
                                       </FormGroup>
 
                                        <FormGroup>
                                         <Label size="sm"  for="exampleEmail">Saksi 1</Label >
-                                        <Input bsSize="sm"/>
+                                        <Input bsSize="sm" value={this.state.formProperties.saksi_pertama}
+                                                onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,saksi_pertama:e.target.value} })}/>
                                       </FormGroup>
 
                                        <FormGroup>
                                         <Label size="sm"  for="exampleEmail">Saksi 2</Label >
-                                        <Input bsSize="sm"/>
+                                        <Input bsSize="sm" value={this.state.formProperties.saksi_kedua}
+                                                onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,saksi_kedua:e.target.value} })}/>
                                       </FormGroup>
 
                                        <FormGroup>
                                         <Label size="sm"  for="exampleEmail">Team Pembebasan</Label >
-                                        <Input bsSize="sm"/>
+                                        <Input bsSize="sm" value={this.state.formProperties.tim_pembebasan}
+                                                onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,tim_pembebasan:e.target.value} })}/>
                                       </FormGroup>
 
 
@@ -311,7 +338,8 @@ modalInsert(){
                                           type="number"
                                           name="number"
                                           id="exampleNumber"
-                                          
+                                          value={this.state.formProperties.tahun_pembebasan}
+                                                onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,tahun_pembebasan:e.target.value} })}
                                         />
                                       </FormGroup>
 
@@ -320,33 +348,40 @@ modalInsert(){
 
                                             <FormGroup>
                                         <Label size="sm"  for="exampleText">Alamat</Label >
-                                        <Input type="textarea" name="text" id="exampleText" />
+                                        <Input type="textarea" name="text" id="exampleText" 
+                                        value={this.state.formProperties.alamat}
+                                        onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,alamat:e.target.value} })}/>
                                       </FormGroup>
 
 
                                          <FormGroup>
                                         <Label size="sm"  for="exampleEmail">Jalan</Label >
-                                        <Input bsSize="sm"/>
+                                        <Input bsSize="sm" value={this.state.formProperties.jalan}
+                                                onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,jalan:e.target.value} })}/>
                                       </FormGroup>
 
                                        <FormGroup>
                                         <Label size="sm"  for="exampleEmail">Kabupaten / kota</Label >
-                                        <Input bsSize="sm"/>
+                                        <Input bsSize="sm" value={this.state.formProperties.kabupaten_kota}
+                                                onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,kabupaten_kota:e.target.value} })}/>
                                       </FormGroup>
 
                                        <FormGroup>
                                         <Label size="sm"  for="exampleEmail">Desa / Kelurahan</Label >
-                                        <Input bsSize="sm"/>
+                                        <Input bsSize="sm" value={this.state.formProperties.desa_kelurahan}
+                                                onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,desa_kelurahan:e.target.value} })}/>
                                       </FormGroup>
 
                                        <FormGroup>
                                         <Label size="sm"  for="exampleEmail">Kecamatan</Label >
-                                        <Input bsSize="sm"/>
+                                        <Input bsSize="sm" value={this.state.formProperties.kecamatan}
+                                                onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,kecamatan:e.target.value} })}/>
                                       </FormGroup>
 
                                        <FormGroup>
                                         <Label size="sm"  for="exampleEmail">Provinsi</Label >
-                                        <Input bsSize="sm"/>
+                                        <Input bsSize="sm" value={this.state.formProperties.provinsi}
+                                                onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,provinsi:e.target.value} })}/>
                                       </FormGroup>
                           </TabPane>
                         </TabContent>
@@ -412,9 +447,6 @@ modalInfo(){
                                                <FormGroup>
                                                 <Label size="sm"  for="exampleEmail">Nomor Akta Jual beli</Label >
                                                 <Input placeholder="0980C234" bsSize="sm"
-                                                  
-                                                  
-                                                  
                                                   value={this.state.formProperties.no_akta_jual_beli}
                                                   onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,no_akta_jual_beli:e.target.value} })}
                                                 />
@@ -492,47 +524,59 @@ modalInfo(){
                              
                                          <FormGroup>
                                         <Label size="sm"  for="exampleEmail">Rensil Nomor</Label >
-                                        <Input bsSize="sm" />
+                                        <Input bsSize="sm" 
+                                        value={this.state.formProperties.rensil_no}
+                                                onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,rensil_no:e.target.value} })}/>
                                       </FormGroup>
 
                                        <FormGroup>
                                         <Label size="sm"  for="exampleEmail">Girik C</Label >
-                                        <Input bsSize="sm"/>
+                                        <Input bsSize="sm"
+                                        value={this.state.formProperties.girik_c}
+                                                onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,girik_c:e.target.value} })}/>
                                       </FormGroup>
 
                                        <FormGroup>
                                         <Label size="sm"  for="exampleEmail">SPPT PBB</Label >
-                                        <Input bsSize="sm"/>
+                                        <Input bsSize="sm"
+                                        value={this.state.formProperties.sppt_pbb}
+                                                onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,sppt_pbb:e.target.value} })}/>
                                       </FormGroup>
 
                                        <FormGroup>
                                         <Label size="sm"  for="exampleEmail">Pejabat Pembuat Akta Tanah</Label >
-                                        <Input bsSize="sm"/>
+                                        <Input bsSize="sm" value={this.state.formProperties.pejabat_akta}
+                                                onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,pejabat_akta:e.target.value} })}/>
                                       </FormGroup>
 
                                        <FormGroup>
                                         <Label size="sm"  for="exampleEmail">Pihak Pertama</Label >
-                                        <Input bsSize="sm"/>
+                                        <Input bsSize="sm" value={this.state.formProperties.pihak_pertama}
+                                                onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,pihak_pertama:e.target.value} })}/>
                                       </FormGroup>
 
                                        <FormGroup>
                                         <Label size="sm"  for="exampleEmail">Pihak Kedua</Label >
-                                        <Input bsSize="sm"/>
+                                        <Input bsSize="sm" value={this.state.formProperties.pihak_kedua}
+                                                onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,pihak_kedua:e.target.value} })}/>
                                       </FormGroup>
 
                                        <FormGroup>
                                         <Label size="sm"  for="exampleEmail">Saksi 1</Label >
-                                        <Input bsSize="sm"/>
+                                        <Input bsSize="sm" value={this.state.formProperties.saksi_pertama}
+                                                onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,saksi_pertama:e.target.value} })}/>
                                       </FormGroup>
 
                                        <FormGroup>
                                         <Label size="sm"  for="exampleEmail">Saksi 2</Label >
-                                        <Input bsSize="sm"/>
+                                        <Input bsSize="sm" value={this.state.formProperties.saksi_kedua}
+                                                onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,saksi_kedua:e.target.value} })}/>
                                       </FormGroup>
 
                                        <FormGroup>
                                         <Label size="sm"  for="exampleEmail">Team Pembebasan</Label >
-                                        <Input bsSize="sm"/>
+                                        <Input bsSize="sm" value={this.state.formProperties.tim_pembebasan}
+                                                onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,tim_pembebasan:e.target.value} })}/>
                                       </FormGroup>
 
 
@@ -542,7 +586,8 @@ modalInfo(){
                                           type="number"
                                           name="number"
                                           id="exampleNumber"
-                                          
+                                          value={this.state.formProperties.tahun_pembebasan}
+                                                onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,tahun_pembebasan:e.target.value} })}
                                         />
                                       </FormGroup>
 
@@ -551,33 +596,40 @@ modalInfo(){
 
                                             <FormGroup>
                                         <Label size="sm"  for="exampleText">Alamat</Label >
-                                        <Input type="textarea" name="text" id="exampleText" />
+                                        <Input type="textarea" name="text" id="exampleText" 
+                                        value={this.state.formProperties.alamat}
+                                        onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,alamat:e.target.value} })}/>
                                       </FormGroup>
 
 
                                          <FormGroup>
                                         <Label size="sm"  for="exampleEmail">Jalan</Label >
-                                        <Input bsSize="sm"/>
+                                        <Input bsSize="sm" value={this.state.formProperties.jalan}
+                                                onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,jalan:e.target.value} })}/>
                                       </FormGroup>
 
                                        <FormGroup>
                                         <Label size="sm"  for="exampleEmail">Kabupaten / kota</Label >
-                                        <Input bsSize="sm"/>
+                                        <Input bsSize="sm" value={this.state.formProperties.kabupaten_kota}
+                                                onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,kabupaten_kota:e.target.value} })}/>
                                       </FormGroup>
 
                                        <FormGroup>
                                         <Label size="sm"  for="exampleEmail">Desa / Kelurahan</Label >
-                                        <Input bsSize="sm"/>
+                                        <Input bsSize="sm" value={this.state.formProperties.desa_kelurahan}
+                                                onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,desa_kelurahan:e.target.value} })}/>
                                       </FormGroup>
 
                                        <FormGroup>
                                         <Label size="sm"  for="exampleEmail">Kecamatan</Label >
-                                        <Input bsSize="sm"/>
+                                        <Input bsSize="sm" value={this.state.formProperties.kecamatan}
+                                                onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,kecamatan:e.target.value} })}/>
                                       </FormGroup>
 
                                        <FormGroup>
                                         <Label size="sm"  for="exampleEmail">Provinsi</Label >
-                                        <Input bsSize="sm"/>
+                                        <Input bsSize="sm" value={this.state.formProperties.provinsi}
+                                                onChange={(e)=>this.setState({ formProperties: {...this.state.formProperties,provinsi:e.target.value} })}/>
                                       </FormGroup>
                           </TabPane>
                         </TabContent>
@@ -714,7 +766,7 @@ modalInfo(){
   async submitLokasi(){
 
     let joinObject = {...this.state.newLokasi, properties: this.state.formProperties }
-
+    console.log('ini yg mau di submit', joinObject);
     let api = new Api();
     await api.create();
     let client = api.getClient();
@@ -739,7 +791,7 @@ modalInfo(){
     let data= {
       properties: this.state.formProperties
     }
- 
+    console.log('ini yg mau di update', data);
     let api = new Api();
     await api.create();
     let client = api.getClient();
