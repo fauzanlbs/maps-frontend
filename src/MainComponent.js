@@ -59,6 +59,11 @@ import { popupContent, popupHead, popupText, okText } from "./PopUpStyle";
 
 import GoogleLayer from "./GoogleLayer";
 import { ReactLeafletSearch } from "react-leaflet-search";
+import { SearchControl, OpenStreetMapProvider } from 'react-leaflet-geosearch'
+
+
+const prov = OpenStreetMapProvider();
+const GeoSearchControlElement = withLeaflet(SearchControl);
 
 const key = "AIzaSyDV-Qiaydvq7kZ4KpCFHYHkJ977AkbIA6s";
 const terrain = "TERRAIN";
@@ -69,6 +74,7 @@ const hydrid = "HYBRID";
 const PrintControl = withLeaflet(PrintControlDefault);
 
 const { BaseLayer, Overlay } = LayersControl;
+
 
 class CustomOpenStreetMap {
   constructor(options = { providerKey: null, searchBounds: [] }) {
@@ -127,30 +133,34 @@ const myIcon = L.icon({
 });
 
 const searchComponent = props => (
-  <ReactLeafletSearch
-    customProvider={this.provider}
-    position="topleft"
-    inputPlaceholder="Custom placeholder"
-    search={[33.100745405144245, 46.48315429687501]}
-    showMarker={true}
-    zoom={5}
-    showPopup={true}
-    popUp={this.customPopup}
-    closeResultsOnClick={true}
-    openSearchOnLoad={true}
-    // // these searchbounds would limit results to only Turkey.
-    searchBounds={[
-      [33.100745405144245, 46.48315429687501],
-      [44.55916341529184, 24.510498046875]
-    ]}
-    // providerOptions={{region: 'tr'}}
+  // <ReactLeafletSearch
+  //   customProvider={this.provider}
+  //   position="topleft"
+  //   inputPlaceholder="Custom placeholder"
+  //   search={[33.100745405144245, 46.48315429687501]}
+  //   showMarker={true}
+  //   zoom={5}
+  //   showPopup={true}
+  //   popUp={this.customPopup}
+  //   closeResultsOnClick={true}
+  //   openSearchOnLoad={true}
+  //   // // these searchbounds would limit results to only Turkey.
+  //   searchBounds={[
+  //     [33.100745405144245, 46.48315429687501],
+  //     [44.55916341529184, 24.510498046875]
+  //   ]}
+  //   // providerOptions={{region: 'tr'}}
 
-    // default provider OpenStreetMap
-    // provider="BingMap"
-    // providerKey="AqbjLrfVbZf4G0f1lgRNxy6pnf8OebfpH0zfWIrSBGwMeYfIR7_ORw9koBzdvEGP"
-    provider="OpenStreetMap"
-    providerOptions={{ region: "gb" }}
-  />
+  //   // default provider OpenStreetMap
+  //   // provider="BingMap"
+  //   // providerKey="AqbjLrfVbZf4G0f1lgRNxy6pnf8OebfpH0zfWIrSBGwMeYfIR7_ORw9koBzdvEGP"
+  //   provider="OpenStreetMap"
+  //   providerOptions={{ region: "gb" }}
+  // />
+
+  <GeoSearchControlElement provider={prov} showMarker= {true} showPopup={false} popupFormat={({ query, result }) => result.label} 
+                  maxMarkers={3}  retainZoomLevel= {false}  animateZoom= {true} autoClose= {false}  
+                  searchLabel={'Enter address, please'} keepResult= {true} />
 );
 
 class MainComponent extends Component {
@@ -1807,7 +1817,7 @@ class MainComponent extends Component {
           center={position}
           zoom={this.state.zoom}
         >
-          <searchComponent />
+          <searchComponent/>
 
           {this.state.getApi ? (
             <GeoJSON
