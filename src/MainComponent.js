@@ -544,7 +544,7 @@ class MainComponent extends Component {
             <TabPane tabId="2">
               <FormGroup>
                 <Label size="sm" for="exampleEmail">
-                  Rensil Nomor
+                  Persil Nomor
                 </Label>
                 <Input
                   bsSize="sm"
@@ -748,7 +748,7 @@ class MainComponent extends Component {
 
               <FormGroup>
                 <Label size="sm" for="exampleEmail">
-                  Jalan
+                  Blok
                 </Label>
                 <Input
                   bsSize="sm"
@@ -1070,7 +1070,7 @@ class MainComponent extends Component {
             <TabPane tabId="2">
               <FormGroup>
                 <Label size="sm" for="exampleEmail">
-                  Rensil Nomor
+                  Persil Nomor
                 </Label>
                 <Input
                   bsSize="sm"
@@ -1274,7 +1274,7 @@ class MainComponent extends Component {
 
               <FormGroup>
                 <Label size="sm" for="exampleEmail">
-                  Jalan
+                  Blok
                 </Label>
                 <Input
                   bsSize="sm"
@@ -1913,7 +1913,7 @@ class MainComponent extends Component {
         </Button>
 
         {this.state.sideBarVisible ? (
-          <MessageCardForm
+          <MessageCardForm data={this.state.geojsonApi}
             user={JSON.parse(localStorage.getItem("user"))}
             logout={this.logOut}
             cancelMessage={this.cancelMessage}
