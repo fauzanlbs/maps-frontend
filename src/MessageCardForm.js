@@ -1,16 +1,40 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import { Card, Button, CardTitle, CardText, CardFooter, Form, FormGroup, Label, Input, Image } from 'reactstrap';
 import {JsonToExcel} from 'react-json-excel';
+import { CSVLink } from "react-csv";
 
 
 const className = 'class-name-for-style',
   filename = 'hansonland-list-data',
   fields = {
-    "index": "Index",
-    "guid": "GUID"
+    "no_peta_denah": "no_peta_denah1",
+    "luas_tanah": "luas_tanah",
+    "warna_wilayah": "warna_wilayah",
+    "date": "date",
+    "nama_penjual": "nama_penjual",
+    "no_akta_jual_beli": "no_akta_jual_beli",
+    "luas_awal": "luas_awal",
+    "luas_akhir": "luas_akhir",
+    "persil_no": "rensil_no",
+    "girik_c": "girik_c",
+    "sppt_pbb": "sppt_pbb",
+    "pejabat_akta": "pejabat_akta",
+    "pihak_pertama": "pihak_pertama",
+    "pihak_kedua": "pihak_kedua",
+    "saksi_pertama": "saksi_pertama",
+    "saksi_kedua": "saksi_kedua",
+    "tim_pembebasan": "tim_pembebasan",
+    "tahun_pembebasan": "tahun_pembebasan",
+    "alamat": "alamat",
+    "blok": "jalan",
+    "kabupaten_kota": "kabupaten_kota",
+    "desa_kelurahan": "desa_kelurahan",
+    "kecamatan": "kecamatan",
+    "provinsi": "provinsi",
+    "tgl_akta_jual_beli": "tgl_akta_jual_beli"
   },
   style = {
-    padding: "10px",
+    padding: "20px",
     backgroundColor:'#00BFFF',
     fontSize:'10px',
     color:'#fff',
@@ -24,6 +48,22 @@ const className = 'class-name-for-style',
   ];
 
 const MessageCardForm = (props) => {
+
+  const [dataJson, setdataJson] = useState([]);
+
+  useEffect(() => {
+    console.log(props.data)
+    let propertiesnya = props.data.map((dt)=> {
+      let tes = {}
+      tes = dt.properties;
+      tes.koordinat = dt.geometry.coordinates;
+      return tes;
+    })
+    setdataJson(propertiesnya)
+    
+
+  }, []);
+
   return (
 
     <Card body className="message-form">
@@ -37,31 +77,39 @@ const MessageCardForm = (props) => {
           />
   
           <Form style={{margin:25}} onSubmit={props.formSubmitted}>
-           
-            <FormGroup>
+             <div>
+            <div type="cancel" onClick={props.logout}><img
+             src="http://www.lifetimeearn.com/images/logout.png"
+             width="130"
+            height="50"/></div>
+            </div>
+            <div style={{margin:10}}>
+            <FormGroup style={{justifyContent:'center', alignItems:'center'}}>
               <Label style={{fontSize:14, fontWeight:'bold'}} for="name">Nama</Label>
               <Label style={{fontSize:10}} for="name">{props.user.name}</Label>
             </FormGroup>
-            <FormGroup>
+            <FormGroup style={{justifyContent:'center', alignItems:'center'}}>
               <Label style={{fontSize:14, fontWeight:'bold'}} for="message">Email</Label>
               <Label style={{fontSize:10}} for="message">{props.user.email}</Label>
             </FormGroup>
-            
-            <Button type="cancel" color="danger" onClick={props.logout}>Logout</Button>
+            </div>
+
+
+            <div>
+        <CSVLink data={dataJson}><img
+             src="https://www.megaonlinetrading.id/download/download.png"
+             width="130"
+            height="50"/></CSVLink>
+          </div>
+
+          
            
             
             
           </Form> 
-           <CardFooter><JsonToExcel
-              data={props.data}
-              className={className}
-              filename={filename}
-              fields={props.data}
-              style={style}
-            /></CardFooter>
+            
            </div>
-           
-         
+
          
     </Card>
   );
