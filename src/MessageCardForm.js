@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import { Card, Button, CardTitle, CardText, CardFooter, Form, FormGroup, Label, Input, Image } from 'reactstrap';
 import {JsonToExcel} from 'react-json-excel';
 import { CSVLink } from "react-csv";
+import logout from './logout.png';
 
 
 const className = 'class-name-for-style',
@@ -66,9 +67,9 @@ const MessageCardForm = (props) => {
 
   return (
 
-    <Card body className="message-form">
+    <Card body className="message-form" style={{backgroundColor:'#5F9EA0'}}>
 
-    <CardTitle onClick={props.cancelMessage}>X</CardTitle>
+    <CardTitle ><Button onClick={props.cancelMessage}>X </Button></CardTitle>
            
           <div style={{display: 'flex', justifyContent:'center', alignItems:'center'}}>
           <img src={require('./profile.png')}     
@@ -77,23 +78,17 @@ const MessageCardForm = (props) => {
           />
   
           <Form style={{margin:25}} onSubmit={props.formSubmitted}>
-             <div>
-            <div type="cancel" onClick={props.logout}><img
-             src="http://www.lifetimeearn.com/images/logout.png"
-             width="130"
-            height="50"/></div>
-            </div>
+          
             <div style={{margin:10}}>
             <FormGroup style={{justifyContent:'center', alignItems:'center'}}>
-              <Label style={{fontSize:14, fontWeight:'bold'}} for="name">Nama</Label>
+              <Label style={{fontSize:13, fontWeight:'bold'}} for="name">Nama</Label>
               <Label style={{fontSize:10}} for="name">{props.user.name}</Label>
             </FormGroup>
             <FormGroup style={{justifyContent:'center', alignItems:'center'}}>
-              <Label style={{fontSize:14, fontWeight:'bold'}} for="message">Email</Label>
+              <Label style={{fontSize:13, fontWeight:'bold'}} for="message">Email</Label>
               <Label style={{fontSize:10}} for="message">{props.user.email}</Label>
             </FormGroup>
             </div>
-
 
             <div>
         <CSVLink data={dataJson}><img
@@ -101,6 +96,13 @@ const MessageCardForm = (props) => {
              width="130"
             height="50"/></CSVLink>
           </div>
+            <div style={{marginLeft:40}}>
+            <Button type="cancel" onClick={props.logout}><img
+             src={logout}
+             width="30"
+            height="30"/></Button>
+            </div>
+
 
           
            
