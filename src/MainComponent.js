@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, useEffect } from "react";
 import L from "leaflet";
 import {
   Map,
@@ -34,7 +34,8 @@ import {
   FormGroup,
   Label,
   Input,
-  FormText
+  FormText,
+  Alert
 } from "reactstrap";
 import classnames from "classnames";
 
@@ -67,10 +68,11 @@ const prov = OpenStreetMapProvider();
 const GeoSearchControlElement = withLeaflet(SearchControl);
 
 const key = "AIzaSyDV-Qiaydvq7kZ4KpCFHYHkJ977AkbIA6s";
+const hydrid = "HYBRID";
 const terrain = "TERRAIN";
 const road = "ROADMAP";
 const satellite = "SATELLITE";
-const hydrid = "HYBRID";
+
 
 const PrintControl = withLeaflet(PrintControlDefault);
 
@@ -84,52 +86,27 @@ class MainComponent extends Component {
     super(props);
    
     this.state = {
+      key: 123,
       count: 0,
-      maxZoom: 13,
-      maxBounds: [
-        [-90, -180],
-        [90, 180]
-      ],
-      bounds: [
-        {
-          lat: 33.100745405144245,
-          lng: 24.510498046875
-        },
-        {
-          lat: 33.100745405144245,
-          lng: 46.48315429687501
-        },
-        {
-          lat: 44.55916341529184,
-          lng: 46.48315429687501
-        },
-        {
-          lat: 44.55916341529184,
-          lng: 24.510498046875
-        }
-      ],
-
-      location: {
-        lat: -6.273545691905462,
-        lng: 106.72507524490355
-      },
+      maxZoom: 11,
+      lat: '',
+      lng: '',
       haveUsersLocation: false,
-      zoom: 21,
+      zoom: 18,
       userMessage: {
         name: "",
         message: ""
       },
       formProperties: {
         no_peta_denah: "",
-        luas_tanah: "",
         warna_wilayah: "",
         nama_penjual: "",
         no_akta_jual_beli: "",
         tgl_akta_jual_beli: "",
-        luas_awal: "",
-        luas_akhir: "",
+        luas_ajb: "",
+        luas_ukur: "",
         harga_jual_beli: "",
-        rensil_no: "",
+        persil_no: "",
         girik_c: "",
         sppt_pbb: "",
         pejabat_akta: "",
@@ -140,7 +117,7 @@ class MainComponent extends Component {
         tim_pembebasan: "",
         tahun_pembebasan: "",
         alamat: "",
-        jalan: "",
+        blok: "",
         kabupaten_kota: "",
         desa_kelurahan: "",
         kecamatan: "",
@@ -161,8 +138,10 @@ class MainComponent extends Component {
       showPopUp: false,
       faseSimpan: true,
       geoJsonClicked: {},
-      role: ""
+      role: "",
+      alertVisible: false
     };
+
 
     this.openPopUp = this.openPopUp.bind(this);
     this.baseMaps = BaseMapHansonland;
@@ -171,14 +150,287 @@ class MainComponent extends Component {
     this.submitLokasi = this.submitLokasi.bind(this);
     this.editLokasi = this.editLokasi.bind(this);
     this.deleteLokasi = this.deleteLokasi.bind(this);
+    this.getDatafromApi = this.getDatafromApi.bind(this);
+ 
   }
+
+
+  render() {
+    let lat = this.state.lat != ''?this.state.lat: '-6.273545691905462'
+    let lng = this.state.lng != ''?this.state.lng: '106.72507524490355'
+    console.log('ini lat', lat, 'ini long', lng);
+    const position = [lat, lng];
+    let blah = this.state;
+
+    return (
+      <div className="map">
+        <Map 
+          className="map"
+          worldCopyJump={true}
+          center={position}
+          zoom={this.state.zoom}
+         >
+
+              {this.state.getApi ? (
+                <GeoJSON key={this.state.key}
+                    data={this.state.geojsonApi}
+                    style={this.geoJSONStyle}
+                    onEachFeature={this.onEachFeature}
+                    onClick={e => {
+                      this.openPopUp(e);
+                    }}>
+                </GeoJSON>
+              ) : null}
+
+                            {/*
+                            <PrintControl ref={(ref) => { this.printControl = ref; }} position="topleft" sizeModes={['Current', 'A4Portrait', 'A4Landscape']} hideControlContainer={false} />
+                           <PrintControl position="topleft" sizeModes={['Current', 'A4Portrait', 'A4Landscape']} hideControlContainer={false} title="Export as PNG" exportOnly />
+                            */}
+
+                            {this.googleRenderLayer()}
+                            {this.renderBaseLayerControl()}
+
+                            <GeoSearch />
+
+                            <FeatureGroup
+                              onClick={e => this._onClickMap(e)}
+                              ref={reactFGref => {
+                                this._onFeatureGroupReady(reactFGref);
+                              }}
+                            >
+                                      <EditControl
+                                        onCreated={e => this._onCreate(e)}
+                                        onEdited={e => this._onEdit(e)}
+                                        onDeleted={e => this._onDelete(e)}
+                                        onEditVertex={e => this._onEditVertex(e)}
+                                        position="topleft"
+                                        draw={{
+                                          rectangle: false,
+                                          circle: false,
+                                          circlemarker: false,
+                                          polyline: false,
+                                          marker: false,
+                                          polygon:
+                                            this.state.role !== "admin"
+                                              ? false
+                                              : {
+                                                  showArea: true,
+                                                  shapeOptions: {
+                                                    color: "red"
+                                                  }
+                                                }
+                                        }}
+                                        edit={{ edit: false, remove: false }}
+                                      />
+                                      {this.modalInsert()}
+                                      {this.modalInfo()}
+                            </FeatureGroup>
+           
+        </Map>
+        <Button
+          onClick={this.showMessageForm}
+          className="message-form"
+          color="info"
+        >
+          =
+        </Button>
+        {this.state.sideBarVisible ? (
+          <MessageCardForm data={this.state.geojsonApi}
+            user={JSON.parse(localStorage.getItem("user"))}
+            logout={this.logOut}
+            cancelMessage={this.cancelMessage}
+            findMe={this.findMe}
+          />
+        ) : (
+          <div />
+        )}
+      </div>
+    );
+  }
+
+
+
+
+
+
 
   componentDidMount() {
     //get data
     this.getDatafromApi();
+
   }
 
+
+
+
+  async submitLokasi() {
+    let joinObject = {
+      ...this.state.newLokasi,
+      properties: this.state.formProperties
+    };
+    
+    let api = new Api();
+    await api.create();
+    let client = api.getClient();
+    client
+      .post("/lokasi", joinObject)
+      .then(res => {
+       
+        this.setState(prevState => ({
+          modal: !prevState.modal
+        }));
+         
+          this.getDatafromApi();
+          this.setState({
+            key: Math.random(),
+            getApi: true
+          })
+
+      })
+      .catch(err => {
+        console.log("ini errorsubmit", err);
+        this.setState({
+          alertVisible: true
+        })
+      });
+
+    
+  }
+
+  async editLokasi() {
+    let data = {
+      properties: this.state.formProperties
+    };
+    console.log("ini yg mau di update", data);
+    let api = new Api();
+    await api.create();
+    let client = api.getClient();
+    client
+      .put("/lokasi/" + this.state.geoJsonClicked.id, data)
+      .then(res => {
+        this.setState(prevState => ({
+          modalInfo: !prevState.modalInfo
+        }));
+        this.props.history.push("/");
+      })
+      .catch(err => {
+        console.log("ini errorsubmit", err);
+        this.setState({
+          alertVisible: true
+        })
+      });
+
+    
+  }
+
+  async deleteLokasi() {
+    let api = new Api();
+    await api.create();
+    let client = api.getClient();
+    client
+      .delete("/lokasi/" + this.state.geoJsonClicked.id)
+      .then(res => {
+        this.props.history.push("/");
+      })
+      .catch(err => {
+        console.log("ini errordelete", err);
+      });
+  }
+
+
+
+  getDatafromApi() {
+    let token = localStorage.getItem("token");
+    let userStorage = localStorage.getItem("user");
+    let convertUser = JSON.parse(userStorage);
+
+    this.setState({
+      role: JSON.parse(localStorage.getItem("user")).name
+    });
+
+
+    if (token) {
+      
+      let api = new Api();
+      api.create();
+      let client = api.getClient();
+      client
+        .get("/lokasi")
+        .then(res => {
+      
+          this.setState({
+            geojsonApi: res.data.data.lokasis
+          });
+
+          let features = this.state.geojsonApi;
+          let joinObjectnya = features.map(obj => ({
+            ...obj,
+            type: "Feature"
+          }));
+
+          this.setState({
+            geojsonApi: joinObjectnya,
+            getApi: true
+          });
+          this.setState({
+            key: Math.random(),
+           
+          })
   
+        })
+        .catch(err => {
+      
+          localStorage.clear();
+          this.props.history.push("/");
+        });
+    } else {
+      this.props.history.push("/");
+    }
+  }
+
+
+
+
+
+
+
+  googleRenderLayer(){
+    return(
+
+
+          <LayersControl position="bottomright">
+            <BaseLayer checked name="Google Maps Hydrid">
+              <GoogleLayer 
+                googlekey={key}
+                maptype={hydrid}
+                libraries={["geometry", "places"]}
+              />
+            </BaseLayer>
+            <BaseLayer name="OpenStreetMap.Mapnik">
+              <TileLayer url="http://{s}.tile.osm.org/{z}/{x}/{y}.png" />
+            </BaseLayer>
+
+            <BaseLayer name="Google Maps Roads">
+              <GoogleLayer googlekey={key} maptype={road} />
+            </BaseLayer>
+            <BaseLayer name="Google Maps Terrain">
+              <GoogleLayer googlekey={key} maptype={terrain} />
+            </BaseLayer>
+            <BaseLayer name="Google Maps Satellite">
+              <GoogleLayer googlekey={key} maptype={satellite} />
+            </BaseLayer>
+
+            <BaseLayer name="Google Maps with Libraries">
+              <GoogleLayer
+                googlekey={key}
+                maptype={hydrid}
+                libraries={["geometry", "places"]}
+              />
+            </BaseLayer>
+          </LayersControl>
+
+    )
+  }
 
   renderBaseLayerControl() {
     return (
@@ -230,6 +482,16 @@ class MainComponent extends Component {
     );
   }
 
+
+
+
+
+
+
+
+
+
+
   modalInsert() {
     return (
       <Modal
@@ -238,7 +500,7 @@ class MainComponent extends Component {
         toggle={this.toggle}
         className={this.props.className}
       >
-        <ModalHeader toggle={this.toggle}>Input Tanah</ModalHeader>
+        <ModalHeader toggle={this.toggle}>Input Tanah </ModalHeader>
         <ModalBody>
           <Nav tabs>
             <NavItem>
@@ -280,7 +542,7 @@ class MainComponent extends Component {
                     Nomor Peta/Denah
                   </Label>
                   <Input
-                    placeholder="BC98723"
+                   
                     bsSize="sm"
                     value={this.state.formProperties.no_peta_denah}
                     onChange={e =>
@@ -299,7 +561,7 @@ class MainComponent extends Component {
                     Nomor Akta Jual beli
                   </Label>
                   <Input
-                    placeholder="0980C234"
+                   
                     bsSize="sm"
                     value={this.state.formProperties.no_akta_jual_beli}
                     onChange={e =>
@@ -374,21 +636,23 @@ class MainComponent extends Component {
                   />
                 </FormGroup>
 
+               
+
                 <FormGroup>
                   <Label size="sm" for="exampleNumber">
-                    Luas Tanah
+                    Luas AJB /m2
                   </Label>
                   <Input
                     bsSize="sm"
                     type="number"
                     name="number"
                     id="exampleNumber"
-                    value={this.state.formProperties.luas_tanah}
+                    value={this.state.formProperties.luas_ajb}
                     onChange={e =>
                       this.setState({
                         formProperties: {
                           ...this.state.formProperties,
-                          luas_tanah: e.target.value
+                          luas_ajb: e.target.value
                         }
                       })
                     }
@@ -397,40 +661,19 @@ class MainComponent extends Component {
 
                 <FormGroup>
                   <Label size="sm" for="exampleNumber">
-                    Luas Awal
+                    Luas Ukur /m2
                   </Label>
                   <Input
                     bsSize="sm"
                     type="number"
                     name="number"
                     id="exampleNumber"
-                    value={this.state.formProperties.luas_awal}
+                    value={this.state.formProperties.luas_ukur}
                     onChange={e =>
                       this.setState({
                         formProperties: {
                           ...this.state.formProperties,
-                          luas_awal: e.target.value
-                        }
-                      })
-                    }
-                  />
-                </FormGroup>
-
-                <FormGroup>
-                  <Label size="sm" for="exampleNumber">
-                    Luas Akhir Pembelian
-                  </Label>
-                  <Input
-                    bsSize="sm"
-                    type="number"
-                    name="number"
-                    id="exampleNumber"
-                    value={this.state.formProperties.luas_akhir}
-                    onChange={e =>
-                      this.setState({
-                        formProperties: {
-                          ...this.state.formProperties,
-                          luas_akhir: e.target.value
+                          luas_ukur: e.target.value
                         }
                       })
                     }
@@ -446,12 +689,12 @@ class MainComponent extends Component {
                 </Label>
                 <Input
                   bsSize="sm"
-                  value={this.state.formProperties.rensil_no}
+                  value={this.state.formProperties.persil_no}
                   onChange={e =>
                     this.setState({
                       formProperties: {
                         ...this.state.formProperties,
-                        rensil_no: e.target.value
+                        persil_no: e.target.value
                       }
                     })
                   }
@@ -650,12 +893,12 @@ class MainComponent extends Component {
                 </Label>
                 <Input
                   bsSize="sm"
-                  value={this.state.formProperties.jalan}
+                  value={this.state.formProperties.blok}
                   onChange={e =>
                     this.setState({
                       formProperties: {
                         ...this.state.formProperties,
-                        jalan: e.target.value
+                        blok: e.target.value
                       }
                     })
                   }
@@ -737,6 +980,9 @@ class MainComponent extends Component {
           </TabContent>
         </ModalBody>
         <ModalFooter>
+            <Alert color="danger" isOpen={this.state.alertVisible} fade={false}>
+              No Peta harus Unik
+            </Alert>
           <div>
             <Button size="sm" color="info" onClick={this.submitLokasi}>
               Simpan
@@ -745,7 +991,9 @@ class MainComponent extends Component {
             <Button size="sm" color="secondary" onClick={this.toggle}>
               Keluar
             </Button>
+             
           </div>
+
         </ModalFooter>
       </Modal>
     );
@@ -806,7 +1054,7 @@ class MainComponent extends Component {
                     Nomor Peta/Denah
                   </Label>
                   <Input
-                    placeholder="BC98723"
+                    
                     bsSize="sm"
                     value={this.state.formProperties.no_peta_denah}
                     onChange={e =>
@@ -825,7 +1073,7 @@ class MainComponent extends Component {
                     Nomor Akta Jual beli
                   </Label>
                   <Input
-                    placeholder="0980C234"
+                   
                     bsSize="sm"
                     value={this.state.formProperties.no_akta_jual_beli}
                     onChange={e =>
@@ -900,21 +1148,23 @@ class MainComponent extends Component {
                   />
                 </FormGroup>
 
+               
+
                 <FormGroup>
                   <Label size="sm" for="exampleNumber">
-                    Luas Tanah
+                    Luas AJB /m2
                   </Label>
                   <Input
                     bsSize="sm"
                     type="number"
                     name="number"
                     id="exampleNumber"
-                    value={this.state.formProperties.luas_tanah}
+                    value={this.state.formProperties.luas_ajb}
                     onChange={e =>
                       this.setState({
                         formProperties: {
                           ...this.state.formProperties,
-                          luas_tanah: e.target.value
+                          luas_ajb: e.target.value
                         }
                       })
                     }
@@ -923,40 +1173,19 @@ class MainComponent extends Component {
 
                 <FormGroup>
                   <Label size="sm" for="exampleNumber">
-                    Luas Awal
+                    Luas Ukur /m2
                   </Label>
                   <Input
                     bsSize="sm"
                     type="number"
                     name="number"
                     id="exampleNumber"
-                    value={this.state.formProperties.luas_awal}
+                    value={this.state.formProperties.luas_ukur}
                     onChange={e =>
                       this.setState({
                         formProperties: {
                           ...this.state.formProperties,
-                          luas_awal: e.target.value
-                        }
-                      })
-                    }
-                  />
-                </FormGroup>
-
-                <FormGroup>
-                  <Label size="sm" for="exampleNumber">
-                    Luas Akhir Pembelian
-                  </Label>
-                  <Input
-                    bsSize="sm"
-                    type="number"
-                    name="number"
-                    id="exampleNumber"
-                    value={this.state.formProperties.luas_akhir}
-                    onChange={e =>
-                      this.setState({
-                        formProperties: {
-                          ...this.state.formProperties,
-                          luas_akhir: e.target.value
+                          luas_ukur: e.target.value
                         }
                       })
                     }
@@ -972,12 +1201,12 @@ class MainComponent extends Component {
                 </Label>
                 <Input
                   bsSize="sm"
-                  value={this.state.formProperties.rensil_no}
+                  value={this.state.formProperties.persil_no}
                   onChange={e =>
                     this.setState({
                       formProperties: {
                         ...this.state.formProperties,
-                        rensil_no: e.target.value
+                        persil_no: e.target.value
                       }
                     })
                   }
@@ -1176,12 +1405,12 @@ class MainComponent extends Component {
                 </Label>
                 <Input
                   bsSize="sm"
-                  value={this.state.formProperties.jalan}
+                  value={this.state.formProperties.blok}
                   onChange={e =>
                     this.setState({
                       formProperties: {
                         ...this.state.formProperties,
-                        jalan: e.target.value
+                        blok: e.target.value
                       }
                     })
                   }
@@ -1263,9 +1492,13 @@ class MainComponent extends Component {
           </TabContent>
         </ModalBody>
         <ModalFooter>
+                 <Alert color="danger" isOpen={this.state.alertVisible} fade={false}>
+                  No Peta harus Unik
+                </Alert>
           <div>
             {this.state.role === "admin" ? (
               <div>
+                
                 <Button size="sm" color="info" onClick={this.editLokasi}>
                   Ubah
                 </Button>{" "}
@@ -1279,7 +1512,8 @@ class MainComponent extends Component {
                   color="secondary"
                   onClick={() =>
                     this.setState(prevState => ({
-                      modalInfo: !prevState.modalInfo
+                      modalInfo: !prevState.modalInfo,
+                      alertVisible: false
                     }))
                   }
                 >
@@ -1292,7 +1526,8 @@ class MainComponent extends Component {
                 color="secondary"
                 onClick={() =>
                   this.setState(prevState => ({
-                    modalInfo: !prevState.modalInfo
+                    modalInfo: !prevState.modalInfo,
+                    alertVisible: false
                   }))
                 }
               >
@@ -1305,7 +1540,18 @@ class MainComponent extends Component {
     );
   }
 
-  geoJSONStyle(feature: Object) {
+
+
+
+
+
+
+
+
+
+
+
+geoJSONStyle(feature: Object) {
     return {
       color: feature.properties.warna_wilayah,
       weight: 1,
@@ -1347,12 +1593,7 @@ class MainComponent extends Component {
                   : "-"
               }
               <br />
-              Luas Tanah: ${
-                feature.properties.luas_tanah
-                  ? feature.properties.luas_tanah
-                  : "-"
-              }
-              <br />
+             
               No Akta Jual Beli: ${
                 feature.properties.no_akta_jual_beli
                   ? feature.properties.no_akta_jual_beli
@@ -1365,21 +1606,15 @@ class MainComponent extends Component {
                   : "-"
               }
               <br />
-              Luas Tanah: ${
-                feature.properties.luas_tanah
-                  ? feature.properties.luas_tanah
+              Luas AJB: ${
+                feature.properties.luas_ajb
+                  ? feature.properties.luas_ajb
                   : "-"
               }
               <br />
-              Luas Awal: ${
-                feature.properties.luas_awal
-                  ? feature.properties.luas_awal
-                  : "-"
-              }
-              <br />
-              Luas Akhir: ${
-                feature.properties.luas_akhir
-                  ? feature.properties.luas_akhir
+              Luas Ukur: ${
+                feature.properties.luas_ukur
+                  ? feature.properties.luas_ukur
                   : "-"
               }
               <br />
@@ -1403,6 +1638,21 @@ class MainComponent extends Component {
     });
   }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   openPopUp(e) {
     this.setState({
       geoJsonClicked: e.layer.feature,
@@ -1423,71 +1673,6 @@ class MainComponent extends Component {
     window.parent.location = window.parent.location.href;
   }
 
-  async submitLokasi() {
-    let joinObject = {
-      ...this.state.newLokasi,
-      properties: this.state.formProperties
-    };
-    console.log("ini yg mau di submit", joinObject);
-    let api = new Api();
-    await api.create();
-    let client = api.getClient();
-    client
-      .post("/lokasi", joinObject)
-      .then(res => {
-        this.props.history.push("/");
-        this.setState({
-          geojsonApi: { ...this.state.geojsonApi, ...joinObject }
-        });
-      })
-      .catch(err => {
-        console.log("ini errorsubmit", err);
-      });
-
-    this.setState(prevState => ({
-      modal: !prevState.modal
-    }));
-  }
-
-  async editLokasi() {
-    let data = {
-      properties: this.state.formProperties
-    };
-    console.log("ini yg mau di update", data);
-    let api = new Api();
-    await api.create();
-    let client = api.getClient();
-    client
-      .put("/lokasi/" + this.state.geoJsonClicked.id, data)
-      .then(res => {
-        this.props.history.push("/");
-      })
-      .catch(err => {
-        console.log("ini errorsubmit", err);
-      });
-
-    this.setState(prevState => ({
-      modalInfo: !prevState.modalInfo
-    }));
-  }
-
-  async deleteLokasi() {
-    let api = new Api();
-    await api.create();
-    let client = api.getClient();
-    client
-      .delete("/lokasi/" + this.state.geoJsonClicked.id)
-      .then(res => {
-        this.props.history.push("/");
-      })
-      .catch(err => {
-        console.log("ini errordelete", err);
-      });
-  }
-
-  ComponentDidUpdate() {
-    this.getDatafromApi();
-  }
 
   toggleTab(tab) {
     if (this.state.activeTab !== tab) {
@@ -1507,53 +1692,6 @@ class MainComponent extends Component {
     }));
   };
 
-  getDatafromApi() {
-    let token = localStorage.getItem("token");
-    let userStorage = localStorage.getItem("user");
-    let convertUser = JSON.parse(userStorage);
-
-    this.setState({
-      role: JSON.parse(localStorage.getItem("user")).name
-    });
-
-    // console.log('token di main', token)
-    // console.log('user di main', this.state.role)
-
-    if (token) {
-      // console.log('masuk setelah validasi token')
-      let api = new Api();
-      api.create();
-      let client = api.getClient();
-      client
-        .get("/lokasi")
-        .then(res => {
-          // console.log('ini data get dr api', res.data.data.lokasis)
-          this.setState({
-            geojsonApi: res.data.data.lokasis
-          });
-
-          let features = this.state.geojsonApi;
-          let joinObjectnya = features.map(obj => ({
-            ...obj,
-            type: "Feature"
-          }));
-
-          this.setState({
-            geojsonApi: joinObjectnya,
-            getApi: true
-          });
-
-          // console.log('test', joinObjectnya)
-        })
-        .catch(err => {
-          console.log("ini errornya", err);
-          localStorage.clear();
-          this.props.history.push("/");
-        });
-    } else {
-      this.props.history.push("/");
-    }
-  }
 
   _onCreate = data => {
     this.setState(prevState => ({
@@ -1569,6 +1707,13 @@ class MainComponent extends Component {
     this.setState({
       newLokasi: newLokasiJson
     });
+
+    console.log('ini ke save bro!');
+    this.getDatafromApi()
+    this.setState(this.state);
+    this.forceUpdate()
+
+    
   };
 
   _onEdit = data => {
@@ -1669,150 +1814,12 @@ class MainComponent extends Component {
     this.props.history.push("/");
   };
 
-  dataGeo = () => {
-    if (this.state.geojsonApi) {
-      const json = london_postcodes;
-      const geojsonApinya = this.state.geojsonApi;
 
-      return (
-        <GeoJSON
-          key={hash(json)}
-          data={geojsonApinya}
-          style={this.geoJSONStyle}
-          onEachFeature={this.onEachFeature}
-          onClick={e => {
-            console.log("", e);
-          }}
-        />
-      );
-    }
-  };
-
-
-
-
-
-  render() {
-    const position = [this.state.location.lat, this.state.location.lng];
-
-    return (
-      <div className="map">
-        <Map
-          className="map"
-          worldCopyJump={true}
-          center={position}
-          zoom={this.state.zoom}
-        >
-          <searchComponent/>
-
-          {this.state.getApi ? (
-            <GeoJSON
-              data={this.state.geojsonApi}
-              style={this.geoJSONStyle}
-              onEachFeature={this.onEachFeature}
-              onClick={e => {
-                this.openPopUp(e);
-              }}
-            ></GeoJSON>
-          ) : null}
-
-          {/*
-          <PrintControl ref={(ref) => { this.printControl = ref; }} position="topleft" sizeModes={['Current', 'A4Portrait', 'A4Landscape']} hideControlContainer={false} />
-         <PrintControl position="topleft" sizeModes={['Current', 'A4Portrait', 'A4Landscape']} hideControlContainer={false} title="Export as PNG" exportOnly />
-          */}
-          {this.renderBaseLayerControl()}
-
-          <LayersControl position="bottomright">
-            <BaseLayer name="Google Maps Hydrid">
-              <GoogleLayer
-                googlekey={key}
-                maptype={hydrid}
-                libraries={["geometry", "places"]}
-              />
-            </BaseLayer>
-            <BaseLayer name="OpenStreetMap.Mapnik">
-              <TileLayer url="http://{s}.tile.osm.org/{z}/{x}/{y}.png" />
-            </BaseLayer>
-
-            <BaseLayer checked name="Google Maps Roads">
-              <GoogleLayer googlekey={key} maptype={road} />
-            </BaseLayer>
-            <BaseLayer name="Google Maps Terrain">
-              <GoogleLayer googlekey={key} maptype={terrain} />
-            </BaseLayer>
-            <BaseLayer name="Google Maps Satellite">
-              <GoogleLayer googlekey={key} maptype={satellite} />
-            </BaseLayer>
-
-            <BaseLayer name="Google Maps with Libraries">
-              <GoogleLayer
-                googlekey={key}
-                maptype={hydrid}
-                libraries={["geometry", "places"]}
-              />
-            </BaseLayer>
-          </LayersControl>
-
-          <FeatureGroup
-            onClick={e => this._onClickMap(e)}
-            ref={reactFGref => {
-              this._onFeatureGroupReady(reactFGref);
-            }}
-          >
-            <EditControl
-              onCreated={e => this._onCreate(e)}
-              onEdited={e => this._onEdit(e)}
-              onDeleted={e => this._onDelete(e)}
-              onEditVertex={e => this._onEditVertex(e)}
-              position="topleft"
-              draw={{
-                rectangle: false,
-                circle: false,
-                circlemarker: false,
-                polyline: false,
-                marker: false,
-                polygon:
-                  this.state.role !== "admin"
-                    ? false
-                    : {
-                        showArea: true,
-                        shapeOptions: {
-                          color: "red"
-                        }
-                      }
-              }}
-              edit={{ edit: false, remove: false }}
-            />
-
-            {this.modalInsert()}
-
-            {this.modalInfo()}
-          </FeatureGroup>
-
-           <GeoSearch />
-        </Map>
-
-        <Button
-          onClick={this.showMessageForm}
-          className="message-form"
-          color="info"
-        >
-          =
-        </Button>
-
-        {this.state.sideBarVisible ? (
-          <MessageCardForm data={this.state.geojsonApi}
-            user={JSON.parse(localStorage.getItem("user"))}
-            logout={this.logOut}
-            cancelMessage={this.cancelMessage}
-            findMe={this.findMe}
-          />
-        ) : (
-          <div />
-        )}
-      </div>
-    );
+  reset() {
+    this.setState({name: "", price: "", status: "available",desc: "",image: ""})
   }
+
+ 
 }
 
 export default MainComponent;

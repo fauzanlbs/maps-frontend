@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from 'react';
 import { Card, Button, CardTitle, CardText, CardFooter, Form, FormGroup, Label, Input, Image } from 'reactstrap';
-import {JsonToExcel} from 'react-json-excel';
 import { CSVLink } from "react-csv";
 import logout from './logout.png';
 
