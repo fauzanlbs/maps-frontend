@@ -55,9 +55,11 @@ const MessageCardForm = (props) => {
     console.log(props.data)
     let propertiesnya = props.data.map((dt)=> {
       let tes = {}
+      if(dt.geometry){
       tes = dt.properties;
       tes.koordinat = dt.geometry.coordinates;
       return tes;
+     }
     })
     setdataJson(propertiesnya)
     

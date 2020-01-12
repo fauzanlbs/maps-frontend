@@ -151,6 +151,8 @@ class MainComponent extends Component {
     this.editLokasi = this.editLokasi.bind(this);
     this.deleteLokasi = this.deleteLokasi.bind(this);
     this.getDatafromApi = this.getDatafromApi.bind(this);
+    this.reset = this.reset.bind(this);
+    this.cancelForm = this.cancelForm.bind(this);
  
   }
 
@@ -285,6 +287,7 @@ class MainComponent extends Component {
             key: Math.random(),
             getApi: true
           })
+          this.reset()
 
       })
       .catch(err => {
@@ -309,9 +312,16 @@ class MainComponent extends Component {
       .put("/lokasi/" + this.state.geoJsonClicked.id, data)
       .then(res => {
         this.setState(prevState => ({
-          modalInfo: !prevState.modalInfo
+          modalInfo: !prevState.modalInfo,
+   
         }));
-        this.props.history.push("/");
+        // this.props.history.push("/");
+          this.getDatafromApi();
+          this.setState({
+            key: Math.random(),
+            getApi: true
+          })
+          this.reset()
       })
       .catch(err => {
         console.log("ini errorsubmit", err);
@@ -330,7 +340,18 @@ class MainComponent extends Component {
     client
       .delete("/lokasi/" + this.state.geoJsonClicked.id)
       .then(res => {
-        this.props.history.push("/");
+        // this.props.history.push("/");
+        this.setState(prevState => ({
+          modalInfo: !prevState.modalInfo,
+      
+        }));
+
+          this.getDatafromApi();
+          this.setState({
+            key: Math.random(),
+            getApi: true
+          })
+          this.reset()
       })
       .catch(err => {
         console.log("ini errordelete", err);
@@ -1510,12 +1531,7 @@ class MainComponent extends Component {
                 <Button
                   size="sm"
                   color="secondary"
-                  onClick={() =>
-                    this.setState(prevState => ({
-                      modalInfo: !prevState.modalInfo,
-                      alertVisible: false
-                    }))
-                  }
+                  onClick={ this.cancelForm}
                 >
                   Keluar
                 </Button>
@@ -1524,12 +1540,7 @@ class MainComponent extends Component {
               <Button
                 size="sm"
                 color="secondary"
-                onClick={() =>
-                  this.setState(prevState => ({
-                    modalInfo: !prevState.modalInfo,
-                    alertVisible: false
-                  }))
-                }
+                onClick={this.cancelForm}
               >
                 Keluar
               </Button>
@@ -1803,6 +1814,14 @@ geoJSONStyle(feature: Object) {
     });
   };
 
+  cancelForm(){
+    this.reset()
+    this.setState(prevState => ({
+        modalInfo: !prevState.modalInfo,
+        alertVisible: false
+      }))
+  }
+
   cancelMessage = () => {
     this.setState({
       sideBarVisible: false
@@ -1816,7 +1835,35 @@ geoJSONStyle(feature: Object) {
 
 
   reset() {
-    this.setState({name: "", price: "", status: "available",desc: "",image: ""})
+        this.setState(prevState => ({
+        formProperties: {                   // object that we want to update
+            ...prevState.formProperties,    // keep all other key-value pairs
+            no_peta_denah: "",
+            warna_wilayah: "",
+            nama_penjual: "",
+            no_akta_jual_beli: "",
+            tgl_akta_jual_beli: "",
+            luas_ajb: "",
+            luas_ukur: "",
+            harga_jual_beli: "",
+            persil_no: "",
+            girik_c: "",
+            sppt_pbb: "",
+            pejabat_akta: "",
+            pihak_pertama: "",
+            pihak_kedua: "",
+            saksi_pertama: "",
+            saksi_kedua: "",
+            tim_pembebasan: "",
+            tahun_pembebasan: "",
+            alamat: "",
+            blok: "",
+            kabupaten_kota: "",
+            desa_kelurahan: "",
+            kecamatan: "",
+            provinsi: ""       // update the value of specific key
+        }
+          }))
   }
 
  
