@@ -89,8 +89,8 @@ class MainComponent extends Component {
       key: 123,
       count: 0,
       maxZoom: 11,
-      lat: '',
-      lng: '',
+      lat: '-6.273545691905462',
+      lng: '106.72507524490355',
       haveUsersLocation: false,
       zoom: 18,
       userMessage: {
@@ -158,10 +158,8 @@ class MainComponent extends Component {
 
 
   render() {
-    let lat = this.state.lat != ''?this.state.lat: '-6.273545691905462'
-    let lng = this.state.lng != ''?this.state.lng: '106.72507524490355'
-    console.log('ini lat', lat, 'ini long', lng);
-    const position = [lat, lng];
+   
+    const position = [this.state.lat, this.state.lng];
     let blah = this.state;
 
     return (
@@ -222,7 +220,7 @@ class MainComponent extends Component {
                                                   }
                                                 }
                                         }}
-                                        edit={{ edit: false, remove: false }}
+                                        edit={{ edit: false, remove: true }}
                                       />
                                       {this.modalInsert()}
                                       {this.modalInfo()}
@@ -304,7 +302,7 @@ class MainComponent extends Component {
     let data = {
       properties: this.state.formProperties
     };
-    console.log("ini yg mau di update", data);
+   
     let api = new Api();
     await api.create();
     let client = api.getClient();
@@ -1028,7 +1026,7 @@ class MainComponent extends Component {
         toggle={this.toggle}
         className={this.props.className}
       >
-        <ModalHeader toggle={this.toggle}>
+        <ModalHeader toggle={this.cancelForm}>
           Informasi Tanah{" "}
           {this.state.geoJsonClicked.properties
             ? this.state.geoJsonClicked.properties.no_peta_denah
@@ -1677,7 +1675,7 @@ geoJSONStyle(feature: Object) {
     this.setState(prevState => ({
       modal: !prevState.modal
     }));
-    this.props.history.push("/");
+   
   }
 
   refreshPage() {
@@ -1719,7 +1717,7 @@ geoJSONStyle(feature: Object) {
       newLokasi: newLokasiJson
     });
 
-    console.log('ini ke save bro!');
+    
     this.getDatafromApi()
     this.setState(this.state);
     this.forceUpdate()
@@ -1743,16 +1741,14 @@ geoJSONStyle(feature: Object) {
   };
 
   _onClickMap = data => {
-    // console.log('ini data yg di klik', data)
-    data.layer.options.color = "red";
-    let test = data.layer.toGeoJSON();
+   
+   
+    let newLokasiJson = data.layer.toGeoJSON();
 
-    if (test.properties.length !== 0) {
-      // console.log('sudah dua kali');
-    }
-    test["properties"]["cobain"] = "lagiz";
-    // console.log('ini di klik map: ', test)
-    // console.log('ini refnya', this._editableFG);
+    this.setState({
+      newLokasi: newLokasiJson
+    });
+
     this.setState(prevState => ({
       modal: !prevState.modal
     }));
@@ -1777,11 +1773,11 @@ geoJSONStyle(feature: Object) {
 
     this._editableFG = reactFGref;
 
-    //  console.log(this._editableFG,'ini hasilnya');
+    
 
     if (this._editableFG) {
       const geojsonData = this._editableFG.leafletElement.toGeoJSON();
-      //  console.log('ini geojsondatanya', geojsonData);
+      
     }
   };
 

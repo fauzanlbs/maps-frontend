@@ -64,8 +64,10 @@ async submitForm(){
 
 
   let data = {
-    email: this.state.email,
-    password: this.state.password
+    // email: this.state.email,
+    // password: this.state.password
+    email: 'admin@hansonland.co.id',
+    password: 'hansonland123'
   }
   let api = new Api();
   await api.create();
