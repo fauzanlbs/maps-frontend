@@ -129,7 +129,7 @@ componentDidMount(){
                 type="email"
                 name="email"
                 id="exampleEmail"
-                placeholder="myemail@email.com"
+                placeholder="demo@demo.com"
               
               />
             
@@ -142,7 +142,7 @@ componentDidMount(){
                 type="password"
                 name="password"
                 id="examplePassword"
-                placeholder="********" />
+                placeholder="demo123456" />
               <Button color="primary" style={{marginTop:20}} className="px-4" onClick={this.submitForm}>Login</Button>
             </FormGroup>
           </Col>
