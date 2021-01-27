@@ -67,7 +67,7 @@ import GeoSearch from "./GeoSearch";
 const prov = OpenStreetMapProvider();
 const GeoSearchControlElement = withLeaflet(SearchControl);
 
-const key = "AIzaSyDV-Qiaydvq7kZ4KpCFHYHkJ977AkbIA6s";
+const key = "AIzaSyChebaZ4KCr9YLpz681oVsaW8XcrcvHuz4";
 const hydrid = "HYBRID";
 const terrain = "TERRAIN";
 const road = "ROADMAP";
